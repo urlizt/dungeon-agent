@@ -17,11 +17,11 @@ Then visit <http://localhost:8000>. Stop the server with Ctrl+C.
 
 ## Project structure
 
-- `index.html` — accessible page shell and asset references.
-- `css/styles.css` — mobile-first styling foundation.
-- `js/game.js` — game bootstrap and state (to be implemented).
-- `js/questions.js` — scenario content (to be implemented).
-- `js/ui.js` — screen rendering and interaction (to be implemented).
+- `index.html` — accessible single-page app shell and asset references.
+- `css/styles.css` — mobile-first layout and A/B visual themes.
+- `js/game.js` — in-memory state, screen navigation, and d12 flow.
+- `js/questions.js` — the three scenarios, choices, outcomes, and feedback.
+- `js/ui.js` — accessible screen rendering and interactions.
 - `assets/` — replaceable UX placeholder artwork.
 
 ## Replacing placeholder artwork
