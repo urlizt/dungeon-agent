@@ -1,0 +1,100 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #f0eddf;
+  background: #11130f;
+  --color-panel: #1b2018;
+  --color-border: #586044;
+  --color-accent: #d3aa5b;
+  --color-muted: #c1c5b7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 50% 0, rgb(91 104 59 / 22%), transparent 58%),
+    #11130f;
+}
+
+.app-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.welcome {
+  width: min(100%, 38rem);
+  padding: clamp(1.5rem, 7vw, 3.5rem) clamp(1.25rem, 7vw, 3.75rem);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgb(35 42 29 / 96%), rgb(24 28 22 / 98%));
+  box-shadow: 0 1.5rem 5rem rgb(0 0 0 / 28%);
+  text-align: center;
+}
+
+.welcome__logo {
+  display: block;
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 3.25rem);
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.welcome__description {
+  max-width: 31rem;
+  margin: 1.25rem auto 0;
+  color: var(--color-muted);
+  font-size: 1.125rem;
+  text-wrap: pretty;
+}
+
+.setup-note {
+  margin: 2rem 0 0;
+  color: var(--color-accent);
+  font-size: 0.9375rem;
+}
+
+@media (min-width: 48rem) {
+  .app-shell {
+    padding: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

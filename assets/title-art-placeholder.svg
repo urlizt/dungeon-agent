@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" role="img" aria-labelledby="title">
+  <title id="title">Placeholder dungeon entrance artwork</title>
+  <rect width="800" height="440" fill="#11130f"/>
+  <path d="M0 350h800v90H0zM70 350V170l330-145 330 145v180" fill="#252c20" stroke="#586044" stroke-width="12"/>
+  <path d="M265 350V220a135 135 0 0 1 270 0v130z" fill="#11130f" stroke="#d3aa5b" stroke-width="8"/>
+  <path d="M400 227v123M330 350V229m140 121V229" stroke="#586044" stroke-width="6"/>
+</svg>

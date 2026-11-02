@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title">
+  <title id="title">Placeholder instructions icon</title>
+  <circle cx="48" cy="48" r="42" fill="#252c20" stroke="#d3aa5b" stroke-width="4"/>
+  <path d="M48 43v25m0-42v3" stroke="#d3aa5b" stroke-linecap="round" stroke-width="8"/>
+</svg>

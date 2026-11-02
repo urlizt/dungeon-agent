@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">Placeholder guardian portrait</title>
+  <rect width="240" height="240" rx="20" fill="#1b2018"/>
+  <circle cx="120" cy="82" r="43" fill="#d3aa5b"/>
+  <path d="M44 218c5-56 34-84 76-84s71 28 76 84" fill="#586044" stroke="#d3aa5b" stroke-width="5"/>
+  <path d="M91 83h58M104 108h32" stroke="#252c20" stroke-linecap="round" stroke-width="7"/>
+</svg>

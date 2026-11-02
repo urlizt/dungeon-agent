@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title">
+  <title id="title">Placeholder defeat artwork</title>
+  <rect width="640" height="360" fill="#171715"/>
+  <path d="M0 300h640v60H0z" fill="#29241f"/>
+  <path d="M246 246V139l74-43 74 43v107z" fill="#252c20" stroke="#8e795b" stroke-width="8"/>
+  <path d="m284 145 72 72m0-72-72 72" stroke="#d3aa5b" stroke-linecap="round" stroke-width="12"/>
+</svg>

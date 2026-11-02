@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Placeholder twelve-sided die</title>
+  <path d="m64 8 42 17 15 39-15 39-42 17-42-17L7 64l15-39z" fill="#252c20" stroke="#d3aa5b" stroke-linejoin="round" stroke-width="5"/>
+  <path d="m64 8 16 45 41 11M22 25l42 28 42-28M7 64h73l26 39M22 103l42-50 42 50M64 53v74" fill="none" stroke="#d3aa5b" stroke-width="2"/>
+  <text x="64" y="72" fill="#f0eddf" font-family="system-ui, sans-serif" font-size="21" font-weight="700" text-anchor="middle">d12</text>
+</svg>

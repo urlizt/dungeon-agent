@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title">
+  <title id="title">Placeholder victory artwork</title>
+  <rect width="640" height="360" fill="#1b2018"/>
+  <circle cx="320" cy="145" r="82" fill="#d3aa5b" opacity=".2"/>
+  <path d="m320 52 24 54 59 5-45 38 14 58-52-30-52 30 14-58-45-38 59-5z" fill="#d3aa5b"/>
+  <path d="M0 300h640v60H0z" fill="#252c20"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-labelledby="title">
+  <title id="title">Placeholder pixel dungeon preview</title>
+  <rect width="400" height="240" fill="#202238" stroke="#d3aa5b" stroke-width="5"/>
+  <path d="M0 180h400v60H0z" fill="#514237"/>
+  <path d="M50 55h60v60H50zm60-30h60v60h-60zm120 30h60v60h-60zm60-30h60v60h-60z" fill="#56597c"/>
+  <path d="M170 180v-60h60v60z" fill="#d3aa5b"/>
+  <path d="M170 180v-30h30v30z" fill="#202238"/>
+</svg>
