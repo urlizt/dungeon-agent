@@ -479,6 +479,57 @@ textarea:focus-visible {
   margin-top: 1rem;
 }
 
+.roll-in-progress {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: var(--color-panel);
+  text-align: center;
+}
+
+.roll-in-progress p {
+  margin: 0;
+  color: var(--color-accent);
+  font-weight: 750;
+}
+
+.dice-rolling {
+  border-radius: 0.5rem;
+  animation: dice-roll 800ms ease-in-out;
+}
+
+.roll-detail {
+  color: var(--color-accent);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+@keyframes dice-roll {
+  0% {
+    transform: rotate(0) translateY(0);
+  }
+
+  22% {
+    transform: rotate(85deg) translateY(-0.4rem);
+  }
+
+  48% {
+    transform: rotate(190deg) translateY(0.2rem);
+  }
+
+  74% {
+    transform: rotate(285deg) translateY(-0.2rem);
+  }
+
+  100% {
+    transform: rotate(360deg) translateY(0);
+  }
+}
+
 .outcome-panel {
   display: grid;
   grid-template-columns: 3.5rem minmax(0, 1fr);

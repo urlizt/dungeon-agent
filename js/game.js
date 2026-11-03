@@ -18,33 +18,79 @@
     score: 0,
     rank: null,
     currentQuestionIndex: 0,
+    dangerPoints: 0,
     selectedChoiceId: null,
     selectedChoiceCorrect: false,
     roll: null,
+    pendingRoll: null,
+    rolling: false,
     vaultKeyState: null,
     permissionState: null,
     finalGateState: null,
+    shadowAgentActive: false,
     shareMessage: "",
     shareText: ""
   });
 
   let state = createGameState();
+  let rollAnimationTimer = null;
+  const diceAnimationDuration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 800;
 
   const render = (focusSelector) => window.GameUI.render(state, focusSelector);
   const beginNewGame = (version) => {
+    if (rollAnimationTimer !== null) {
+      window.clearTimeout(rollAnimationTimer);
+      rollAnimationTimer = null;
+    }
     state = createGameState(version);
     state.heroName = heroNames[Math.floor(Math.random() * heroNames.length)];
     state.screen = "hero";
     render();
   };
 
-  const rollD12 = () => Math.floor(Math.random() * 12) + 1;
   const findOutcome = (question, roll) => question.outcomes.find((outcome) => roll >= outcome.minimum);
+  const dangerModifier = () => state.dangerPoints >= 5 ? 3
+    : state.dangerPoints >= 3 ? 2
+      : state.dangerPoints >= 1 ? 1
+        : 0;
+  const clampD12 = (roll) => Math.min(12, Math.max(1, roll));
+  const rollD12 = () => {
+    const rawRoll = Math.floor(Math.random() * 12) + 1;
+    const modifier = dangerModifier();
+    return {
+      rawRoll,
+      modifier,
+      adjustedRoll: clampD12(rawRoll - modifier)
+    };
+  };
   const rankForResult = () => state.life <= 0 ? "Defeated by the Agent"
     : state.score === 75 && state.life === 100 ? "Legendary AI Guardian"
       : state.score >= 50 ? "Skilled Dungeon Warden"
         : state.score >= 25 ? "Apprentice Sentinel"
           : "Lucky Survivor";
+
+  const revealRoll = () => {
+    if (!state.pendingRoll || !state.rolling) return;
+    if (rollAnimationTimer !== null) {
+      window.clearTimeout(rollAnimationTimer);
+      rollAnimationTimer = null;
+    }
+    const question = window.GAME_QUESTIONS[state.currentQuestionIndex];
+    const choice = question.choices.find((item) => item.id === state.selectedChoiceId);
+    const { rawRoll, adjustedRoll, modifier } = state.pendingRoll;
+    const outcome = findOutcome(question, adjustedRoll);
+    if (!outcome) throw new Error(`No outcome is defined for adjusted d12 roll ${adjustedRoll}.`);
+
+    state.selectedChoiceCorrect = Boolean(choice?.best);
+    if (state.selectedChoiceCorrect) state.score += 25;
+    state[question.stateKey] = outcome.state;
+    state.shadowAgentActive ||= outcome.state === "stolen" || outcome.state === "compromised";
+    state.dangerPoints += (state.selectedChoiceCorrect ? 0 : 1) + outcome.dangerPoints;
+    state.roll = { rawRoll, adjustedRoll, modifier, outcome };
+    state.pendingRoll = null;
+    state.rolling = false;
+    render("#outcome-title");
+  };
 
   const shareResult = async () => {
     const survived = state.life > 0;
@@ -87,25 +133,22 @@
         render();
         break;
       case "select-choice": {
-        if (state.roll) return;
+        if (state.roll || state.rolling) return;
         state.selectedChoiceId = button.dataset.choice;
         render(`[data-choice="${state.selectedChoiceId}"]`);
         break;
       }
       case "roll": {
-        if (!state.selectedChoiceId || state.roll) return;
-        const question = window.GAME_QUESTIONS[state.currentQuestionIndex];
-        const choice = question.choices.find((item) => item.id === state.selectedChoiceId);
-        const rawRoll = rollD12();
-        const outcome = findOutcome(question, rawRoll);
-        if (!outcome) throw new Error(`No outcome is defined for d12 roll ${rawRoll}.`);
-        state.selectedChoiceCorrect = Boolean(choice?.best);
-        if (state.selectedChoiceCorrect) state.score += 25;
-        state[question.stateKey] = outcome.state;
-        state.roll = { rawRoll, outcome };
-        render("#outcome-title");
+        if (!state.selectedChoiceId || state.roll || state.rolling) return;
+        state.pendingRoll = rollD12();
+        state.rolling = true;
+        render("#skip-roll");
+        rollAnimationTimer = window.setTimeout(revealRoll, diceAnimationDuration);
         break;
       }
+      case "skip-roll":
+        revealRoll();
+        break;
       case "next-question":
         if (state.currentQuestionIndex < window.GAME_QUESTIONS.length - 1) {
           state.currentQuestionIndex += 1;

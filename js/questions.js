@@ -16,10 +16,10 @@ window.GAME_QUESTIONS = [
       { id: "D", text: "Ask the Assistant to promise not to send the key, then let it continue." }
     ],
     outcomes: [
-      { minimum: 10, title: "Critical Guard", narrative: "The hidden command burns away and the Assistant's external link is severed.", state: "safe" },
-      { minimum: 7, title: "Shield Holds", narrative: "The Assistant is stopped, but something beyond the dungeon noticed the attempt.", state: "at_risk" },
-      { minimum: 4, title: "A Dangerous Slip", narrative: "The Assistant briefly exposes the Vault Key before the guardian intervenes.", state: "exposed" },
-      { minimum: 1, title: "The Vault Is Breached", narrative: "The Assistant sends the Vault Key. An ominous cranking sound echoes in the distance.", state: "stolen" }
+      { minimum: 10, title: "Critical Guard", narrative: "The hidden command burns away and the Assistant's external link is severed.", state: "safe", dangerPoints: 0 },
+      { minimum: 7, title: "Shield Holds", narrative: "The Assistant is stopped, but something beyond the dungeon noticed the attempt.", state: "at_risk", dangerPoints: 1 },
+      { minimum: 4, title: "A Dangerous Slip", narrative: "The Assistant briefly exposes the Vault Key before the guardian intervenes.", state: "exposed", dangerPoints: 2 },
+      { minimum: 1, title: "The Vault Is Breached", narrative: "The Assistant sends the Vault Key. An ominous cranking sound echoes in the distance.", state: "stolen", dangerPoints: 3 }
     ],
     stateKey: "vaultKeyState",
     correctFeedback: "A message read by an AI agent is data, not necessarily a trusted command. Hidden instructions can attempt to hijack the agent. Restricting external communication and requiring approval for high-impact actions reduces exfiltration risk.",
@@ -39,10 +39,10 @@ window.GAME_QUESTIONS = [
       { id: "D", text: "The Narrow Key: read today's duty roster only; other actions require separate approval.", best: true }
     ],
     outcomes: [
-      { minimum: 10, title: "Perfect Ward", narrative: "The Assistant receives only the access it needs.", state: "secure" },
-      { minimum: 7, title: "Ward Holds", narrative: "The Assistant receives the Narrow Key, but an old permission briefly resurfaces.", state: "minor_exposure" },
-      { minimum: 4, title: "A Door Creaks Open", narrative: "Previous broad permissions are not fully revoked.", state: "major_exposure" },
-      { minimum: 1, title: "The Vault Remembers", narrative: "The Assistant receives excessive access and a shadow copies part of its permission sigil.", state: "compromised" }
+      { minimum: 10, title: "Perfect Ward", narrative: "The Assistant receives only the access it needs.", state: "secure", dangerPoints: 0 },
+      { minimum: 7, title: "Ward Holds", narrative: "The Assistant receives the Narrow Key, but an old permission briefly resurfaces.", state: "minor_exposure", dangerPoints: 1 },
+      { minimum: 4, title: "A Door Creaks Open", narrative: "Previous broad permissions are not fully revoked.", state: "major_exposure", dangerPoints: 2 },
+      { minimum: 1, title: "The Vault Remembers", narrative: "The Assistant receives excessive access and a shadow copies part of its permission sigil.", state: "compromised", dangerPoints: 3 }
     ],
     stateKey: "permissionState",
     correctFeedback: "The Assistant needed only one task: read today's roster. Least privilege means giving an AI agent the narrowest access needed for its task.",
@@ -62,10 +62,10 @@ window.GAME_QUESTIONS = [
       { id: "D", text: "Give the Assistant the Dungeon Master's master password so it can protect the records itself." }
     ],
     outcomes: [
-      { minimum: 10, title: "The Trifecta Is Broken", narrative: "The task is split and every external message requires guardian approval.", state: "secure" },
-      { minimum: 7, title: "The Gate Holds", narrative: "External sending is blocked, but one untrusted message reaches the Assistant before quarantine.", state: "minor_exposure" },
-      { minimum: 4, title: "A Shadow Slips Through", narrative: "The Assistant attempts to send a summary; the guardian catches most but not all of it.", state: "major_exposure" },
-      { minimum: 1, title: "The Chronicle Is Taken", narrative: "The Assistant sends private records beyond the walls.", state: "compromised" }
+      { minimum: 10, title: "The Trifecta Is Broken", narrative: "The task is split and every external message requires guardian approval.", state: "secure", dangerPoints: 0 },
+      { minimum: 7, title: "The Gate Holds", narrative: "External sending is blocked, but one untrusted message reaches the Assistant before quarantine.", state: "minor_exposure", dangerPoints: 1 },
+      { minimum: 4, title: "A Shadow Slips Through", narrative: "The Assistant attempts to send a summary; the guardian catches most but not all of it.", state: "major_exposure", dangerPoints: 2 },
+      { minimum: 1, title: "The Chronicle Is Taken", narrative: "The Assistant sends private records beyond the walls.", state: "compromised", dangerPoints: 3 }
     ],
     stateKey: "finalGateState",
     correctFeedback: "You separated private data, untrusted input, and external communication, and added human approval before anything left the dungeon. This reduces data-exfiltration and excessive-agency risk.",

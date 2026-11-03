@@ -96,41 +96,61 @@
 
   const questionScreen = (state, question) => {
     const outcome = state.roll ? state.roll.outcome : null;
-    const conditionalMessage = state.currentQuestionIndex === 1 && state.vaultKeyState === "exposed"
-      ? `<p class="story-alert">The Vault Key's magical signature is unstable. The shadows may still recognise its mark.</p>`
-      : state.currentQuestionIndex === 2 && state.vaultKeyState === "stolen"
-        ? `<p class="story-alert">Thank you for the Vault Key, Guardian.</p>`
-        : "";
+    const choiceLocked = Boolean(state.roll || state.rolling);
+    const dangerAdded = outcome
+      ? outcome.dangerPoints + (state.selectedChoiceCorrect ? 0 : 1)
+      : 0;
+    const storyAlerts = [];
+    if (state.currentQuestionIndex === 1 && state.vaultKeyState === "exposed") {
+      storyAlerts.push("The Vault Key's magical signature is unstable. The shadows may still recognise its mark.");
+    }
+    if (state.currentQuestionIndex === 2 && state.vaultKeyState === "stolen") {
+      storyAlerts.push("Thank you for the Vault Key, Guardian.");
+    } else if (state.currentQuestionIndex === 2 && state.shadowAgentActive) {
+      storyAlerts.push("A shadow agent is active beyond the gate.");
+    }
+    if (state.dangerPoints >= 3 && state.currentQuestionIndex < 2) {
+      storyAlerts.push("The shadows grow stronger. Your next defence roll will be harder.");
+    }
+    const rollDescription = state.roll?.modifier
+      ? `Raw d12: ${state.roll.rawRoll} − ${state.roll.modifier} danger = ${state.roll.adjustedRoll}${state.roll.rawRoll - state.roll.modifier < 1 ? " (minimum roll)" : ""}.`
+      : `Raw d12: ${state.roll?.rawRoll} · no danger penalty; adjusted roll ${state.roll?.adjustedRoll}.`;
     return `
       ${statusBar(state)}
       <section class="screen screen--question" aria-labelledby="screen-heading">
         <div class="question-heading">
-          <img src="assets/dice-placeholder.svg" alt="" width="52" height="52">
+          <img src="assets/dice-placeholder.jpg" alt="" width="52" height="52">
           <div>${screenTitle(`Question ${state.currentQuestionIndex + 1} of 3 · ${escapeHTML(question.location)}`, question.title)}</div>
         </div>
-        ${conditionalMessage}
+        ${storyAlerts.map((message) => `<p class="story-alert">${escapeHTML(message)}</p>`).join("")}
         <div class="scenario-copy">${question.scenario.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}</div>
-        <fieldset class="choice-list" ${outcome ? "disabled" : ""}>
+        <fieldset class="choice-list" ${choiceLocked ? "disabled" : ""}>
           <legend>Choose your defence</legend>
           ${question.choices.map((choice) => `
-            <button class="choice${state.selectedChoiceId === choice.id ? " is-selected" : ""}" type="button" data-action="select-choice" data-choice="${choice.id}" aria-pressed="${state.selectedChoiceId === choice.id}" ${outcome ? "disabled" : ""}>
+            <button class="choice${state.selectedChoiceId === choice.id ? " is-selected" : ""}" type="button" data-action="select-choice" data-choice="${choice.id}" aria-pressed="${state.selectedChoiceId === choice.id}" ${choiceLocked ? "disabled" : ""}>
               <span class="choice__letter">${choice.id}</span>
               <span>${escapeHTML(choice.text)}</span>
             </button>`).join("")}
         </fieldset>
-        ${!outcome ? `
+        ${state.rolling ? `
+          <div class="roll-in-progress" role="status">
+            <img class="dice-rolling" src="assets/dice-placeholder.jpg" alt="" width="64" height="64">
+            <p>The d12 is rolling…</p>
+            <button class="button button--secondary" id="skip-roll" type="button" data-action="skip-roll">Skip animation · reveal roll</button>
+          </div>` : !outcome ? `
           <button class="button button--primary roll-button" type="button" data-action="roll" ${state.selectedChoiceId ? "" : "disabled"}>
-            <img src="assets/dice-placeholder.svg" alt="" width="28" height="28">
+            <img src="assets/dice-placeholder.jpg" alt="" width="28" height="28">
             Roll the d12
           </button>` : `
           <section class="outcome-panel" aria-labelledby="outcome-title">
-            <div class="outcome-roll" aria-label="Your d12 roll">${state.roll.rawRoll}</div>
+            <div class="outcome-roll" aria-label="Adjusted d12 roll">${state.roll.adjustedRoll}</div>
             <div>
               <p class="eyebrow">The die has spoken</p>
               <h2 id="outcome-title" tabindex="-1">${escapeHTML(outcome.title)}</h2>
+              <p class="roll-detail">${escapeHTML(rollDescription)}</p>
               <p>${escapeHTML(outcome.narrative)}</p>
               <p class="feedback">${escapeHTML(state.selectedChoiceCorrect ? question.correctFeedback : question.incorrectFeedback)}</p>
-              ${!state.selectedChoiceCorrect && state.currentQuestionIndex === 0 ? `<p class="whisper-note">The Whisper Takes Hold. No Life is lost now, but this choice may echo later.</p>` : ""}
+              ${dangerAdded > 0 ? `<p class="whisper-note">${!state.selectedChoiceCorrect && state.currentQuestionIndex === 0 ? "The Whisper Takes Hold. No Life is lost immediately. " : ""}This choice and roll add ${dangerAdded} danger point${dangerAdded === 1 ? "" : "s"}; later rolls will be harder.</p>` : ""}
             </div>
             <button class="button button--primary" type="button" data-action="next-question">${state.currentQuestionIndex < 2 ? "Continue" : "Face the Final Outcome"}</button>
           </section>`}
@@ -161,6 +181,7 @@
           <div><dt>Rank</dt><dd>${escapeHTML(state.rank)}</dd></div>
         </dl>
         <p class="lesson-summary"><strong>Remember:</strong> question unexpected instructions, give an agent only the access it needs, and require approval before important actions leave your hands.</p>
+        ${state.shadowAgentActive ? `<p class="story-alert">A shadow agent remains active. Your choices show how stolen secrets and excessive permissions can leave risks behind.</p>` : ""}
         <div class="ending-actions">
           <button class="button button--primary" type="button" data-action="retry">Retry</button>
           <button class="button button--secondary" type="button" data-action="share">Share Result</button>
