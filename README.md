@@ -42,3 +42,9 @@ are valid JPEG and PNG files; SVG originals are included for editable artwork.
 
 The project is static and can be deployed to any host that serves HTML, CSS,
 JavaScript, and image files. No server-side configuration is required.
+
+## Feedback
+
+The ending screen includes a **Take Survey** link that opens the anonymous
+feedback form in a new tab:
+[Microsoft Forms — The Agent's Dungeon feedback](https://forms.cloud.microsoft/r/AuA3b4idLL).
