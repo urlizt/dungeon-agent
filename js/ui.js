@@ -1,7 +1,18 @@
 "use strict";
 
 (() => {
+  const MICROSOFT_FORM_URL = "https://forms.cloud.microsoft/r/AuA3b4idLL";
   const app = document.getElementById("app");
+  const createFeedbackButton = () => {
+    const feedbackButton = document.createElement("a");
+    feedbackButton.className = "feedback-button";
+    feedbackButton.href = MICROSOFT_FORM_URL;
+    feedbackButton.target = "_blank";
+    feedbackButton.rel = "noopener";
+    feedbackButton.textContent = "Take Survey";
+    return feedbackButton;
+  };
+
   const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (character) => ({
     "&": "&amp;",
     "<": "&lt;",
@@ -221,6 +232,7 @@
           break;
         case "ending":
           app.innerHTML = endingScreen(state);
+          app.querySelector(".ending-actions").before(createFeedbackButton());
           break;
         default:
           throw new Error(`Unknown game screen: ${state.screen}`);

@@ -56,7 +56,8 @@ body[data-version="A"] .screen::before {
 body[data-version="A"] .status-bar,
 body[data-version="A"] .info-card,
 body[data-version="A"] .choice,
-body[data-version="A"] .button {
+body[data-version="A"] .button,
+body[data-version="A"] .feedback-button {
   border-radius: 0;
   text-shadow: 0 0 0.6rem rgb(155 229 155 / 18%);
 }
@@ -76,6 +77,10 @@ body[data-version="A"] .result-stats div {
 
 body[data-version="A"] .button--primary {
   border: 2px outset var(--color-accent);
+}
+
+body[data-version="A"] .feedback-button {
+  border-style: dashed;
 }
 
 .version-card--terminal {

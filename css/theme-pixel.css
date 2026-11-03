@@ -60,7 +60,8 @@ body[data-version="B"] .question-heading h1 {
 }
 
 body[data-version="B"] .button,
-body[data-version="B"] .choice {
+body[data-version="B"] .choice,
+body[data-version="B"] .feedback-button {
   border: 3px solid var(--color-border);
   border-radius: 0;
   box-shadow: 3px 3px 0 #090b18;

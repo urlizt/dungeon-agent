@@ -172,6 +172,31 @@ textarea:focus-visible {
   background: var(--color-panel);
 }
 
+.feedback-button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 3.75rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0.25rem 0 1rem;
+  padding: 0.875rem 1.25rem;
+  border: 3px solid var(--color-accent);
+  border-radius: var(--border-radius);
+  color: var(--color-button-text);
+  background: var(--color-button);
+  box-shadow: 0 0.35rem 0 color-mix(in srgb, var(--color-accent), #000 30%);
+  font-weight: 750;
+  text-align: center;
+  text-decoration: none;
+  transition: filter 120ms ease, transform 120ms ease;
+}
+
+.feedback-button:hover,
+.feedback-button:focus-visible {
+  filter: brightness(1.12);
+  transform: translateY(-2px);
+}
+
 .prototype-note {
   margin: 0.75rem 0 0;
   color: var(--color-muted);
