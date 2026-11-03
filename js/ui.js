@@ -27,7 +27,7 @@
 
   const titleScreen = () => `
     <section class="screen screen--title" aria-labelledby="screen-heading">
-      <img class="title-art" src="assets/dungeon-landing.jpeg" alt="Green phosphor terminal artwork depicting The Agent's Dungeon">
+      <img class="title-art" src="assets/terminal-dungeon-door.jpg" alt="Green phosphor terminal artwork depicting The Agent's Dungeon">
       <div class="screen-content">
         <p class="eyebrow">A game about safer AI</p>
         <h1 id="screen-heading" tabindex="-1">The Agent's Dungeon</h1>
