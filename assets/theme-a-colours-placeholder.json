@@ -1,0 +1,14 @@
+{
+  "name": "Version A - Terminal",
+  "colors": {
+    "page": "#050906",
+    "panel": "#09120b",
+    "panelRaised": "#101b12",
+    "border": "#64866a",
+    "accent": "#9be59b",
+    "muted": "#c4d9c4",
+    "text": "#e8f4e8",
+    "button": "#a7e6a4",
+    "buttonText": "#071008"
+  }
+}

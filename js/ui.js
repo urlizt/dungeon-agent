@@ -122,6 +122,13 @@
           <img src="assets/dice-placeholder.jpg" alt="" width="52" height="52">
           <div>${screenTitle(`Question ${state.currentQuestionIndex + 1} of 3 · ${escapeHTML(question.location)}`, question.title)}</div>
         </div>
+        <img
+          class="assistant-portrait"
+          src="${state.version === "B" ? "assets/pixel-assistant-placeholder.png" : "assets/assistant-placeholder.svg"}"
+          alt=""
+          width="64"
+          height="64"
+        >
         ${storyAlerts.map((message) => `<p class="story-alert">${escapeHTML(message)}</p>`).join("")}
         <div class="scenario-copy">${question.scenario.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}</div>
         <fieldset class="choice-list" ${choiceLocked ? "disabled" : ""}>

@@ -34,6 +34,8 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
@@ -42,55 +44,6 @@ body {
   background:
     radial-gradient(ellipse at 50% 0, rgb(91 104 59 / 22%), transparent 58%),
     var(--color-page);
-}
-
-body::before {
-  position: fixed;
-  z-index: -1;
-  background-position: center;
-  background-size: cover;
-  content: "";
-  inset: 0;
-  opacity: 0.18;
-  pointer-events: none;
-}
-
-body[data-version="A"] {
-  --color-page: #050a06;
-  --color-panel: #08110a;
-  --color-panel-raised: #101b11;
-  --color-border: #427043;
-  --color-accent: #80e27e;
-  --color-muted: #b6d5b2;
-  --color-text: #d8f6d5;
-  --color-button: #80e27e;
-  --color-button-text: #061008;
-  --font-display: "Courier New", monospace;
-  --border-radius: 0.15rem;
-}
-
-body[data-version="A"]::before {
-  background-image: url("../assets/terminal-bg-placeholder.png");
-  opacity: 0.12;
-}
-
-body[data-version="B"] {
-  --color-page: #17192a;
-  --color-panel: #24263c;
-  --color-panel-raised: #30334f;
-  --color-border: #8c82bd;
-  --color-accent: #f0c46a;
-  --color-muted: #d4d1e8;
-  --color-text: #f4f1ff;
-  --color-button: #f0c46a;
-  --color-button-text: #201c31;
-  --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --border-radius: 0.35rem;
-}
-
-body[data-version="B"]::before {
-  background-image: url("../assets/dungeon-bg-placeholder.jpg");
-  opacity: 0.2;
 }
 
 button,
@@ -350,6 +303,13 @@ textarea:focus-visible {
   border-radius: 50%;
 }
 
+.assistant-portrait {
+  display: block;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 0.75rem;
+}
+
 .hero-name {
   margin: -0.5rem 0 1rem;
   color: var(--color-accent);
@@ -499,35 +459,12 @@ textarea:focus-visible {
 
 .dice-rolling {
   border-radius: 0.5rem;
-  animation: dice-roll 800ms ease-in-out;
 }
 
 .roll-detail {
   color: var(--color-accent);
   font-size: 0.9rem;
   font-weight: 700;
-}
-
-@keyframes dice-roll {
-  0% {
-    transform: rotate(0) translateY(0);
-  }
-
-  22% {
-    transform: rotate(85deg) translateY(-0.4rem);
-  }
-
-  48% {
-    transform: rotate(190deg) translateY(0.2rem);
-  }
-
-  74% {
-    transform: rotate(285deg) translateY(-0.2rem);
-  }
-
-  100% {
-    transform: rotate(360deg) translateY(0);
-  }
 }
 
 .outcome-panel {
@@ -659,21 +596,6 @@ textarea:focus-visible {
   border-radius: var(--border-radius);
   color: var(--color-text);
   background: var(--color-panel);
-}
-
-body[data-version="A"] .screen,
-body[data-version="A"] .status-bar,
-body[data-version="A"] .choice,
-body[data-version="A"] .button {
-  text-shadow: 0 0 0.6rem rgb(128 226 126 / 20%);
-}
-
-body[data-version="B"] .screen,
-body[data-version="B"] .info-card,
-body[data-version="B"] .choice,
-body[data-version="B"] .version-card,
-body[data-version="B"] .status-bar {
-  box-shadow: 3px 3px 0 rgb(0 0 0 / 32%);
 }
 
 @media (min-width: 42rem) {

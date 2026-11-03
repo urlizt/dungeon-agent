@@ -1,0 +1,109 @@
+@font-face {
+  font-family: "Dungeon Terminal Placeholder";
+  src: url("../assets/font-terminal-placeholder.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+body[data-version="A"] {
+  --color-page: #050906;
+  --color-panel: #09120b;
+  --color-panel-raised: #101b12;
+  --color-border: #64866a;
+  --color-accent: #9be59b;
+  --color-muted: #c4d9c4;
+  --color-text: #e8f4e8;
+  --color-button: #a7e6a4;
+  --color-button-text: #071008;
+  --font-display: "Dungeon Terminal Placeholder", "Courier New", monospace;
+  --border-radius: 0.1rem;
+  font-family: "Dungeon Terminal Placeholder", "Courier New", monospace;
+  background:
+    radial-gradient(ellipse at 50% 0, rgb(41 105 48 / 16%), transparent 58%),
+    var(--color-page);
+}
+
+body[data-version="A"]::before {
+  position: fixed;
+  z-index: -1;
+  background: url("../assets/terminal-bg-placeholder.png") repeat;
+  content: "";
+  inset: 0;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+body[data-version="A"] .screen {
+  border: 2px double var(--color-border);
+  outline: 1px dashed color-mix(in srgb, var(--color-border), transparent 35%);
+  outline-offset: 3px;
+  box-shadow: 0 0 2rem rgb(63 175 78 / 10%);
+}
+
+body[data-version="A"] .screen::before {
+  display: block;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  color: var(--color-accent);
+  content: "+--------------------------------------+";
+  font-size: 0.75rem;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+body[data-version="A"] .status-bar,
+body[data-version="A"] .info-card,
+body[data-version="A"] .choice,
+body[data-version="A"] .button {
+  border-radius: 0;
+  text-shadow: 0 0 0.6rem rgb(155 229 155 / 18%);
+}
+
+body[data-version="A"] .assistant-portrait {
+  border: 1px dashed var(--color-border);
+  filter: drop-shadow(0 0 0.5rem rgb(155 229 155 / 20%));
+}
+
+body[data-version="A"] .status-bar,
+body[data-version="A"] .info-card,
+body[data-version="A"] .choice,
+body[data-version="A"] .hero-stats p,
+body[data-version="A"] .result-stats div {
+  border-style: dashed;
+}
+
+body[data-version="A"] .button--primary {
+  border: 2px outset var(--color-accent);
+}
+
+.version-card--terminal {
+  border: 3px double #78c982;
+  color: #e8f4e8;
+  background: #071008;
+  font-family: "Dungeon Terminal Placeholder", "Courier New", monospace;
+}
+
+.version-card--terminal img {
+  border: 1px dashed #78c982;
+  border-radius: 0;
+}
+
+body[data-version="A"] .dice-rolling {
+  animation: terminal-dice-roll 800ms steps(4, end);
+  filter: drop-shadow(0 0 0.65rem rgb(155 229 155 / 55%));
+}
+
+@keyframes terminal-dice-roll {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-0.4rem); }
+  50% { transform: translateY(0.2rem); }
+  75% { transform: translateY(-0.2rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-version="A"] .dice-rolling {
+    animation: none;
+  }
+}

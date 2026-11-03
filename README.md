@@ -18,7 +18,8 @@ Then visit <http://localhost:8000>. Stop the server with Ctrl+C.
 ## Project structure
 
 - `index.html` — accessible single-page app shell and asset references.
-- `css/styles.css` — mobile-first layout and A/B visual themes.
+- `css/styles.css` — shared mobile-first layout and components.
+- `css/theme-terminal.css` and `css/theme-pixel.css` — separate visual themes selected by the shared game state.
 - `js/game.js` — in-memory state, screen navigation, and d12 flow.
 - `js/questions.js` — the three scenarios, choices, outcomes, and feedback.
 - `js/ui.js` — accessible screen rendering and interactions.
@@ -34,10 +35,10 @@ final game artwork.
 
 Placeholder assets include the game logo, favicon, guardian and assistant
 portraits, d12 icon, dungeon and terminal backgrounds, instructions icon,
-visual-version previews, and success/defeat artwork. Raster background files
-are provided as valid JPEG and PNG images. SVG originals are also included for
-the title art, previews, and ending artwork so those placeholders can be edited
-as vectors.
+visual-version previews, success/defeat artwork, theme-colour JSON files, and
+pixel tileset and assistant sprite. Placeholder WOFF2 fonts are original
+bitmap fonts, intended to be replaced with final licensed fonts. Raster images
+are valid JPEG and PNG files; SVG originals are included for editable artwork.
 
 The project is static and can be deployed to any host that serves HTML, CSS,
 JavaScript, and image files. No server-side configuration is required.

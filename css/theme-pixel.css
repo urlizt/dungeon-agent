@@ -1,0 +1,123 @@
+@font-face {
+  font-family: "Dungeon Pixel Placeholder";
+  src: url("../assets/font-pixel-placeholder.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+body[data-version="B"] {
+  --color-page: #17192a;
+  --color-panel: #252841;
+  --color-panel-raised: #34395c;
+  --color-border: #999bd7;
+  --color-accent: #ffd166;
+  --color-muted: #e0def4;
+  --color-text: #faf8ff;
+  --color-button: #ffd166;
+  --color-button-text: #211a35;
+  --font-display: "Dungeon Pixel Placeholder", "Courier New", monospace;
+  --border-radius: 0;
+  background: #17192a;
+}
+
+body[data-version="B"]::before {
+  position: fixed;
+  z-index: -1;
+  background: url("../assets/pixel-dungeon-tileset-placeholder.png") repeat;
+  background-size: 128px 128px;
+  content: "";
+  inset: 0;
+  image-rendering: pixelated;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+body[data-version="B"] .screen,
+body[data-version="B"] .info-card,
+body[data-version="B"] .choice,
+body[data-version="B"] .version-card,
+body[data-version="B"] .status-bar,
+body[data-version="B"] .result-stats div,
+body[data-version="B"] .hero-stats p {
+  border: 3px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 #090b18;
+}
+
+body[data-version="B"] .screen-header h1,
+body[data-version="B"] .screen--title h1,
+body[data-version="B"] .info-card h2,
+body[data-version="B"] .outcome-panel h2,
+body[data-version="B"] .version-card__title {
+  font-family: "Dungeon Pixel Placeholder", "Courier New", monospace;
+  font-size: clamp(1.05rem, 4vw, 1.65rem);
+  letter-spacing: 0.025em;
+}
+
+body[data-version="B"] .question-heading h1 {
+  font-size: clamp(1rem, 4vw, 1.5rem);
+}
+
+body[data-version="B"] .button,
+body[data-version="B"] .choice {
+  border: 3px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #090b18;
+}
+
+body[data-version="B"] .button--primary {
+  border-color: #ffe6a3;
+  box-shadow: 3px 3px 0 #090b18;
+}
+
+.version-card--pixel {
+  border: 4px solid #999bd7;
+  color: #faf8ff;
+  background: #252841;
+  box-shadow: 4px 4px 0 #090b18;
+}
+
+.version-card--pixel img {
+  border: 2px solid #999bd7;
+  image-rendering: pixelated;
+}
+
+body[data-version="B"] .assistant-portrait,
+body[data-version="B"] .dice-rolling,
+body[data-version="B"] .question-heading > img {
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+
+body[data-version="B"] .assistant-portrait {
+  display: block;
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto 0.75rem;
+  border: 3px solid #999bd7;
+  background: #252841;
+  image-rendering: pixelated;
+}
+
+body[data-version="B"] .ending-art,
+body[data-version="B"] .title-art {
+  image-rendering: pixelated;
+}
+
+body[data-version="B"] .dice-rolling {
+  animation: pixel-dice-roll 800ms steps(4, end);
+}
+
+@keyframes pixel-dice-roll {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-0.7rem) rotate(90deg); }
+  50% { transform: translateY(0.15rem) rotate(180deg); }
+  75% { transform: translateY(-0.35rem) rotate(270deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-version="B"] .dice-rolling {
+    animation: none;
+  }
+}

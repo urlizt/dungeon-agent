@@ -1,0 +1,14 @@
+{
+  "name": "Version B - Pixel",
+  "colors": {
+    "page": "#17192a",
+    "panel": "#252841",
+    "panelRaised": "#34395c",
+    "border": "#999bd7",
+    "accent": "#ffd166",
+    "muted": "#e0def4",
+    "text": "#faf8ff",
+    "button": "#ffd166",
+    "buttonText": "#211a35"
+  }
+}
