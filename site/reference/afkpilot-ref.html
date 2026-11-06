@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script type='text/javascript' src='https://afkpilot.com/RmAjQlGQuUjPRyWCAfulnV3znlnh8YYPNqycuyiHOQOmKlJ2tMUIkYrRNjTUALeIqmpjdIfwU6QW46EHS521PZiK8rmRv1RqqxT1Cvhxl5T0deX4Vcdu0FqwZDrCYwLGy_8uFPtxVDNsH7TfxXqYwLii8saT1HqDW0Y7zQ286mEI2JKZYDZJOWg11SReJJua6IYo9uLPuQlpDtcxhnn8WVnOpnGyAFguiLOkLPmaJmwaUiEd_mWk80uDkrVrSyMPf9cW0g6XL9rnBp_StBg1yZCX2bGNtkc-EyTLDYT-5UU7FRlFd-U9dsJhrA0T8d3lZhzDFwZ5VzcP6ugMy7ucU_2uk7vPvwz0aDP2KrMgZtgw-jgXT_KxFuumRihb3r6ZhylqpbXR6APUQ3x9g8RU84iBzcDFI5AZf3aQ08-Ql8O8divlgEPKz_8gN1AnHdm82g'></script>
+  <meta name="grok-web-version" content="4.15.6">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+  // Older hosts and installed apps still open /. Preserve their entry point
+  // while ordinary browser visits always get the public marketing page.
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var app = /AFKPilotApp/.test(navigator.userAgent);
+    var standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone;
+    var handoff = params.get("remoteHint") === "1" || params.get("linked") === "1";
+    var dashboardAnchor = ["#billing", "#picker", "#add-device"].indexOf(location.hash) !== -1;
+    // An installed web app launches here bare (an older start_url); a link to
+    // a section of this page (#faq, #pricing-section) stays on it.
+    var standaloneLaunch = standalone && !location.hash;
+    if (app || standaloneLaunch || handoff || dashboardAnchor) {
+      document.documentElement.style.visibility = "hidden";
+      location.replace("/dashboard" + location.search + location.hash);
+    }
+  })();
+  // Set the theme before first paint (no flash), and expose the toggle.
+  // App-mode class is stamped here too so CSS can hide purchase/marketing
+  // surfaces before first paint — a flash of pricing is a store-review screenshot.
+  (function () {
+    var root = document.documentElement;
+    if (/AFKPilotApp/.test(navigator.userAgent)) {
+      root.classList.add("afk-app");
+      // iOS ships without a microphone permission, so the voice
+      // affordance must not be offered there. Android keeps it.
+      if (/AFKPilotIOS/.test(navigator.userAgent)) {
+        root.classList.add("afk-ios");
+        // WKWebView fills the whole screen on iOS, so our header paints UNDER
+        // the clock and battery icons. Android's WebView already starts below
+        // them. Tell the status bar to stop overlaying rather than padding
+        // every page with safe-area insets: one call fixes all three pages and
+        // leaves browser CSS untouched. The bridge is injected even in
+        // remote-URL mode, but not necessarily before this runs.
+        var fixStatusBar = function () {
+          var sb = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar;
+          if (sb && sb.setOverlaysWebView) sb.setOverlaysWebView({ overlay: false });
+        };
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", fixStatusBar);
+        } else {
+          fixStatusBar();
+        }
+      }
+    }
+    var saved;
+    try { saved = localStorage.getItem("grok-remote-theme"); } catch (e) {}
+    var initial = saved || ((window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark");
+    root.setAttribute("data-theme", initial);
+    window.__toggleTheme = function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("grok-remote-theme", next); } catch (e) {}
+    };
+  })();
+</script>
+<title>AFK Pilot: Grok Build, Muse Code, Claude, Codex &amp; more in one place</title>
+<meta name="description" content="AFK Pilot runs Grok Build, Muse Code, Codex and Claude Code in one place: in VS Code, a desktop app or a cloud machine, and from your phone." />
+<meta name="theme-color" content="#1e1e1e" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)" />
+<meta property="og:type" content="website" />
+<link rel="canonical" href="https://afkpilot.com/" />
+<meta property="og:url" content="https://afkpilot.com/" />
+<meta property="og:title" content="AFK Pilot: Grok Build, Muse Code, Claude, Codex &amp; more in one place" />
+<meta property="og:description" content="Grok Build, Muse Code, Codex and Claude Code in VS Code, a desktop app or a cloud machine, and from any browser. Messages are relayed in memory and never stored." />
+<meta property="og:image" content="https://afkpilot.com/og-home.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="AFK Pilot: Grok Build, Muse Code, Codex and Claude Code in one place, plus Antigravity (experimental, on your own computer). In VS Code, a desktop app, the cloud, and on your phone." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://afkpilot.com/og-home.png" />
+<meta name="twitter:image:alt" content="AFK Pilot: Grok Build, Muse Code, Codex and Claude Code in one place, plus Antigravity (experimental, on your own computer). In VS Code, a desktop app, the cloud, and on your phone." />
+<link rel="icon" href="https://afkpilot.com/favicon.svg" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="apple-touch-icon" href="https://afkpilot.com/apple-touch-icon.png" />
+<style>
+/* AFK Pilot — shared theme.
+ *
+ * Loaded by every page but chat: index, desktop, blog, link, privacy, terms
+ * and the 404 page (chat.html stays dark-only and keeps
+ * its own vendored palette). One token layer, two themes: the dark set is the
+ * VS Code dark identity the product lives inside; the light set is a cool,
+ * quiet near-white — deliberately not a warm cream. The page's <head> stamps
+ * data-theme before paint, so there is no flash and no JS-off dark/light bug.
+ *
+ * Personality is carried by treatment, not an exotic face: a system sans for
+ * prose paired with the editor's own monospace for eyebrows, device names,
+ * pairing codes, and labels — the landing speaks the editor's language.
+ */
+
+/* ---- tokens: dark is the base (also the no-JS fallback) ---- */
+:root,
+:root[data-theme="dark"] {
+  --bg: #1e1e1e;
+  --surface: #252526;
+  --surface-2: #2a2d2e;
+  --border: #454545;
+  --border-soft: #333333;
+
+  --text: #cccccc;
+  --heading: #ededed;
+  --muted: #9d9d9d;
+  --faint: #6f6f6f;
+
+  --accent: #3794ff;
+  --accent-soft: rgba(55, 148, 255, 0.12);
+  --green: #4ec9b0;
+  --yellow: #d7ba7d;
+  --red: #f48771;
+
+  --btn: #0e639c;
+  --btn-hover: #1177bb;
+  --on-btn: #ffffff;
+
+  --logo: #ffffff;
+  --code-bg: #0c0c0c;
+  --ticket-bg: #1a1a1a;
+
+  --ring: rgba(55, 148, 255, 0.55);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.4), 0 24px 60px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #fbfbfc;
+  --surface: #ffffff;
+  --surface-2: #f2f3f5;
+  --border: #e2e4e8;
+  --border-soft: #ececef;
+
+  --text: #333840;
+  --heading: #14171c;
+  --muted: #565d67;
+  --faint: #8a909a;
+
+  --accent: #1f6feb;
+  --accent-soft: rgba(31, 111, 235, 0.09);
+  --green: #1a9e86;
+  --yellow: #9a6d15;
+  --red: #c4462f;
+
+  --btn: #0e639c;
+  --btn-hover: #1177bb;
+  --on-btn: #ffffff;
+
+  --logo: #14171c;
+  --code-bg: #f2f3f5;
+  --ticket-bg: #ffffff;
+
+  --ring: rgba(31, 111, 235, 0.4);
+  --shadow-sm: 0 1px 2px rgba(20, 23, 28, 0.06);
+  --shadow-lg: 0 1px 2px rgba(20, 23, 28, 0.06), 0 24px 54px rgba(20, 23, 28, 0.12);
+  color-scheme: light;
+}
+
+/* ---- type + space scale ---- */
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", "Cascadia Code", "Fira Code", ui-monospace, Menlo, Consolas, monospace;
+
+  --step--1: 0.8125rem; /* 13 */
+  --step-0: 1rem;       /* 16 */
+  --step-1: 1.1875rem;  /* 19 */
+  --step-2: 1.4375rem;  /* 23 */
+  --step-3: clamp(1.6rem, 3.2vw, 2rem);
+  --step-hero: clamp(2.5rem, 6.4vw, 4.25rem);
+
+  --wrap: 1120px;
+  --measure: 42rem;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 18px;
+}
+
+/* ---- reset (scoped to these pages, not chat) ---- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 { color: var(--heading); font-weight: 600; margin: 0; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, .mono { font-family: var(--font-mono); }
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+
+.muted { color: var(--muted); }
+
+/* ---- header ---- */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.35rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--heading);
+  text-decoration: none;
+  font-weight: 600;
+}
+.brand:hover { text-decoration: none; }
+
+.logo-mark {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  background-color: var(--logo);
+  -webkit-mask: url(https://afkpilot.com/logo.svg) center / contain no-repeat;
+  mask: url(https://afkpilot.com/logo.svg) center / contain no-repeat;
+}
+
+.wordmark {
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+}
+.wordmark b { font-weight: 600; }
+.wordmark .dim { color: var(--muted); font-weight: 500; }
+
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Clerk's UserButton is an avatar only — name the account next to it so two
+   sign-in methods on the same machine are distinguishable. Mock mode leaves
+   the node empty/hidden. */
+.signed-in-as {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  max-width: min(28ch, 42vw);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* icon button (theme toggle) */
+.icon-toggle {
+  width: 38px;
+  height: 38px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.icon-toggle:hover { color: var(--heading); border-color: var(--faint); }
+.icon-toggle svg { width: 17px; height: 17px; display: block; }
+:root[data-theme="dark"] .icon-toggle .i-sun { display: block; }
+:root[data-theme="dark"] .icon-toggle .i-moon { display: none; }
+:root[data-theme="light"] .icon-toggle .i-sun { display: none; }
+:root[data-theme="light"] .icon-toggle .i-moon { display: block; }
+
+/* ---- buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.72rem 1.25rem;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.05s ease;
+}
+.btn:hover { text-decoration: none; }
+.btn:active { transform: translateY(1px); }
+
+.btn-primary {
+  background: var(--btn);
+  color: var(--on-btn);
+}
+.btn-primary:hover { background: var(--btn-hover); }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--heading);
+  border-color: var(--border);
+}
+.btn-secondary:hover { border-color: var(--faint); background: var(--surface-2); }
+
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn:disabled:active { transform: none; }
+
+/* ---- footer ---- */
+.site-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-soft);
+}
+.site-footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding-block: 1.75rem;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+.site-footer .copy { font-family: var(--font-mono); }
+/* Who makes it, and where to find him. Marketing, so app-hidden in the shell. */
+.site-footer .maker { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.9rem; }
+.site-footer nav { display: inline-flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-left: auto; }
+.site-footer a { color: var(--muted); }
+.site-footer a:hover { color: var(--heading); text-decoration: none; }
+/* The honest fine print: independence + trademark note, quiet on its own row. */
+.site-footer .fine {
+  flex-basis: 100%;
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--faint);
+}
+
+@media (max-width: 560px) {
+  .site-footer nav { margin-left: 0; width: 100%; }
+}
+
+/* ---- legal / long-form prose (privacy + terms) ---- */
+.legal-main { flex: 1; }
+.legal { max-width: var(--measure); padding-block: clamp(2.5rem, 6vw, 4rem); }
+.legal h1 { font-size: var(--step-3); letter-spacing: -0.015em; margin: 0.7rem 0 0; }
+.legal .lede { color: var(--muted); margin: 0.85rem 0 0; font-size: var(--step-1); line-height: 1.55; }
+.legal .effective { font-family: var(--font-mono); font-size: var(--step--1); color: var(--faint); margin: 1rem 0 0; }
+.legal h2 { font-size: var(--step-1); letter-spacing: -0.01em; margin: 2.6rem 0 0; }
+.legal p { margin: 0.75rem 0 0; line-height: 1.68; }
+.legal ul { margin: 0.85rem 0 0; padding-left: 1.2rem; }
+.legal li { margin: 0.4rem 0; line-height: 1.6; }
+.legal strong { color: var(--heading); font-weight: 600; }
+.legal .divider { border: 0; border-top: 1px solid var(--border-soft); margin: 2.75rem 0 0; }
+
+/* ---- blog (/blog and /blog/<slug>) ----
+   Release notes written tag to tag, so the page borrows the release's own
+   vocabulary: versions and dates in the editor's monospace, and one track of
+   the month's tags at the top of a post — the same rings-on-a-line the app
+   draws for a workflow's steps. Everything else is a plain reading column. */
+.blog-main { flex: 1; }
+.blog-index { padding-block: clamp(2.5rem, 6vw, 4rem) clamp(3rem, 7vw, 5rem); }
+.blog-index h1 { font-size: var(--step-3); letter-spacing: -0.015em; margin: 0.7rem 0 0; }
+.blog-index .lede { max-width: 58ch; margin: 0.85rem 0 0; color: var(--muted); font-size: var(--step-1); line-height: 1.55; }
+.post-list { list-style: none; margin: clamp(2rem, 5vw, 3rem) 0 0; padding: 0; border-top: 1px solid var(--border-soft); }
+.post-item {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 0.4rem 2rem;
+  padding: 1.6rem 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.post-when { font-family: var(--font-mono); font-size: var(--step--1); color: var(--faint); padding-top: 0.3rem; }
+.post-item h2 { font-size: var(--step-2); letter-spacing: -0.015em; line-height: 1.25; }
+.post-item h2 a { color: var(--heading); }
+.post-item h2 a:hover { color: var(--accent); text-decoration: none; }
+.post-item p { margin: 0.55rem 0 0; max-width: 62ch; color: var(--muted); font-size: 0.97rem; line-height: 1.6; }
+.post-item .post-range { font-family: var(--font-mono); font-size: var(--step--1); color: var(--faint); }
+
+.post { max-width: 44rem; padding-block: clamp(2.25rem, 6vw, 3.75rem) clamp(3rem, 7vw, 5rem); }
+.post-back { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+.post-back::before { content: "\2190\00a0"; }
+.post-back:hover { color: var(--heading); text-decoration: none; }
+.post h1 { margin: 1.1rem 0 0; font-size: clamp(2rem, 5vw, 2.85rem); line-height: 1.1; letter-spacing: -0.025em; }
+.post-byline { margin: 0.9rem 0 0; font-size: var(--step--1); color: var(--faint); }
+.post-byline a { color: var(--muted); }
+.post-byline a:hover { color: var(--heading); text-decoration: none; }
+.post-lede { margin: 1.6rem 0 0; font-size: var(--step-1); line-height: 1.6; color: var(--text); }
+
+/* The month's releases, oldest to newest along one line. Each ring links to
+   its section below. On a phone the four still fit across: the labels are
+   short by construction (a version and a day). */
+.release-track { margin: 2.2rem 0 0.4rem; }
+.release-track ol {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+.release-track ol::before {
+  content: "";
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  top: 0.5rem;
+  border-top: 2px solid var(--border);
+}
+.release-track a { position: relative; display: flex; flex-direction: column; gap: 0.15rem; padding-top: 1.55rem; color: var(--heading); }
+.release-track a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  box-sizing: border-box;
+}
+.release-track li:last-child a::before { background: var(--accent); }
+.release-track a:hover { text-decoration: none; }
+.release-track a:hover .tag { color: var(--accent); }
+.release-track .tag { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 600; }
+.release-track .date { font-family: var(--font-mono); font-size: 0.72rem; color: var(--faint); }
+
+.post-body section { scroll-margin-top: 1.5rem; }
+.post-body h2 { margin: 2.8rem 0 0; font-size: var(--step-2); line-height: 1.3; letter-spacing: -0.015em; }
+.post-body h2 .ver { display: block; margin-bottom: 0.3rem; font-family: var(--font-mono); font-size: var(--step--1); font-weight: 500; letter-spacing: 0.02em; color: var(--accent); }
+.post-body h3 { margin: 2rem 0 0; font-size: var(--step-1); letter-spacing: -0.01em; }
+.post-body p { margin: 0.9rem 0 0; line-height: 1.72; }
+.post-body ul { margin: 1rem 0 0; padding-left: 1.15rem; }
+.post-body li { margin: 0.65rem 0 0; line-height: 1.68; }
+.post-body li::marker { color: var(--faint); }
+.post-body strong { color: var(--heading); font-weight: 600; }
+.post-body code {
+  font-size: 0.86em;
+  background: var(--code-bg);
+  border: 1px solid var(--border-soft);
+  padding: 0.05em 0.4em;
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+.post-body .release-meta { margin-top: 0.35rem; font-family: var(--font-mono); font-size: var(--step--1); color: var(--faint); }
+.post-body .release-meta a { color: var(--muted); }
+.post-body .release-meta a:hover { color: var(--heading); text-decoration: none; }
+.post-body .thanks { color: var(--muted); font-size: 0.93rem; }
+.post-end { margin: 3rem 0 0; padding-top: 1.4rem; border-top: 1px solid var(--border-soft); color: var(--muted); font-size: 0.95rem; }
+
+@media (max-width: 620px) {
+  .post-item { grid-template-columns: 1fr; padding: 1.35rem 0; }
+  .post-when { padding-top: 0; }
+}
+
+/* ---- not found ---- */
+.missing { flex: 1; padding-block: clamp(3.5rem, 12vw, 7rem); }
+.missing .code { font-family: var(--font-mono); font-size: var(--step--1); color: var(--accent); letter-spacing: 0.04em; }
+.missing h1 { margin: 0.8rem 0 0; font-size: var(--step-3); line-height: 1.2; letter-spacing: -0.015em; max-width: 24ch; }
+.missing .asked { margin: 1rem 0 0; color: var(--muted); overflow-wrap: anywhere; }
+.missing .asked code { color: var(--text); background: var(--code-bg); border: 1px solid var(--border-soft); padding: 0.05em 0.45em; border-radius: 5px; }
+.missing-links { list-style: none; margin: 2rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+/* ---- sign-in gate (auth.js requireSignIn) ---- */
+.grok-auth-panel { margin-top: 1.1rem; text-align: center; }
+.grok-auth-panel p { color: var(--muted); font-size: 0.95rem; margin: 0 0 0.85rem; }
+
+/* ---- reduced motion floor ---- */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* The [hidden] attribute must always win: several elements here carry display
+   classes (.btn, .app, flex rows), and an author-origin `display` silently
+   defeats the UA's [hidden] rule without this belt. */
+[hidden] { display: none !important; }
+
+/* Inside the native shell, Clerk's UserProfile must not offer Billing — app
+   stores forbid routing users to a purchase outside their billing, and Clerk
+   Billing is enabled on this instance. auth.js already passes the supported
+   appearance override; this is the second half of a belt and braces, and the
+   two fail differently: the override dies if the props stop being forwarded,
+   this rule dies only if Clerk renames the class. Clerk documents these
+   cl- classes as stable, and the modal portals into this document, so the
+   root-scoped selector reaches it.
+
+   Scoped to html.afk-app, so a normal browser is untouched — no extra rule
+   matches, nothing to evaluate. */
+html.afk-app .cl-navbarButton__billing { display: none !important; }
+
+/* Marketing links (the blog, the maker's profiles, the desktop download) on
+   every page the shell can reach. Each page stamps html.afk-app in its head
+   script before first paint; dashboard.html keeps its own copy of this rule for
+   its page-specific sections. */
+html.afk-app .app-hidden { display: none !important; }
+
+/* The iOS shell ships WITHOUT NSMicrophoneUsageDescription — deliberately, to
+   drop an App Review conversation — so the voice affordance must not be
+   offered there. Android keeps it: Play has no equivalent friction, and
+   applying an Apple constraint to Android would be solving a problem that
+   platform does not have.
+
+   #mic-btn is the vendored chat UI's own id, so this hides the control
+   without a change in the extension repo — which matters because that repo
+   must carry nothing about this product surface. Nothing else can reach the
+   recorder: it is the only entry point, and iOS denies getUserMedia outright
+   without the usage description. */
+html.afk-ios #mic-btn { display: none !important; }
+
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://afkpilot.com/#organization",
+      "name": "AFK Pilot",
+      "url": "https://afkpilot.com/",
+      "logo": { "@type": "ImageObject", "url": "https://afkpilot.com/icon-512.png", "width": 512, "height": 512 },
+      "email": "contact@afkpilot.com",
+      "founder": { "@id": "https://afkpilot.com/#founder" },
+      "parentOrganization": { "@type": "Organization", "name": "HURYN Sp. z o.o.", "url": "https://www.productcompass.pm" },
+      "sameAs": [
+        "https://marketplace.visualstudio.com/items?itemName=PawelHuryn.grok-vscode-phuryn",
+        "https://open-vsx.org/extension/PawelHuryn/grok-vscode-phuryn",
+        "https://github.com/phuryn/grok-build-vscode"
+      ]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://afkpilot.com/#founder",
+      "name": "Pawel Huryn",
+      "url": "https://www.productcompass.pm",
+      "sameAs": [
+        "https://x.com/PawelHuryn",
+        "https://www.linkedin.com/in/pawel-huryn",
+        "https://github.com/phuryn"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://afkpilot.com/#website",
+      "name": "AFK Pilot",
+      "url": "https://afkpilot.com/",
+      "description": "Grok Build, Muse Code, Codex and Claude Code in one place: a VS Code extension, a desktop app, a cloud machine, and any browser. Google's Antigravity is an experimental fifth agent in the extension, on your own computer only.",
+      "publisher": { "@id": "https://afkpilot.com/#organization" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://afkpilot.com/#extension",
+      "name": "AFK Pilot",
+      "alternateName": [
+        "AFK Pilot: Grok Build, Muse Code, Claude, Codex & more in one place",
+        "Grok Build for VS Code (Community)",
+        "GUI for Grok Build & Muse Code",
+        "Grok Build (Community)"
+      ],
+      "description": "A VS Code and Cursor extension that runs Grok Build, Muse Code, Codex and Claude Code, and experimentally Google's Antigravity, in one sidebar, with remote control from your phone.",
+      "url": "https://afkpilot.com/#extension",
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "Code editor extension",
+      "operatingSystem": "Windows, macOS, Linux",
+      "downloadUrl": "https://marketplace.visualstudio.com/items?itemName=PawelHuryn.grok-vscode-phuryn",
+      "license": "https://github.com/phuryn/grok-build-vscode/blob/main/LICENSE",
+      "sameAs": [
+        "https://marketplace.visualstudio.com/items?itemName=PawelHuryn.grok-vscode-phuryn",
+        "https://open-vsx.org/extension/PawelHuryn/grok-vscode-phuryn",
+        "https://github.com/phuryn/grok-build-vscode"
+      ],
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": { "@id": "https://afkpilot.com/#organization" },
+      "author": { "@id": "https://afkpilot.com/#founder" }
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://afkpilot.com/#remote",
+      "name": "AFK Pilot remote control",
+      "url": "https://afkpilot.com/dashboard",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "A modern browser",
+      "offers": [
+        { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD" },
+        {
+          "@type": "Offer",
+          "name": "Remote Max",
+          "price": "5.00",
+          "priceCurrency": "USD",
+          "priceSpecification": { "@type": "UnitPriceSpecification", "price": "5.00", "priceCurrency": "USD", "unitCode": "MON" }
+        }
+      ],
+      "publisher": { "@id": "https://afkpilot.com/#organization" }
+    }
+  ]
+}
+</script>
+<style>
+  .main { flex: 1; }
+
+  /* ---------------- hero ---------------- */
+  .hero { padding-block: clamp(3rem, 8vw, 6rem); }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+  .hero h1 {
+    font-size: var(--step-hero);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin: 1.1rem 0 0;
+    max-width: 15ch;
+  }
+  .hero-sub {
+    margin: 1.4rem 0 0;
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 46ch;
+  }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+  .hero-note {
+    margin: 1.4rem 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--faint);
+  }
+  /* The honest exit. Someone who only wants the agent on one machine does not
+     need this product, and telling them so here costs one line and buys the
+     trust of not having been funnelled. Deliberately quieter than .hero-note
+     and NOT a button: a third call to action beside "Start free" and
+     "See pricing" competed with the page's actual job. */
+  .hero-alt {
+    margin: 0.5rem 0 0;
+    font-size: var(--step--1);
+    color: var(--faint);
+  }
+  .hero-alt a { color: inherit; text-underline-offset: 3px; }
+  .hero-alt a:hover { color: var(--text); }
+
+  /* ---------------- signature: the remote panel + pairing code ---------------- */
+  .showcase { position: relative; padding: 0 clamp(0.5rem, 2vw, 1.5rem); }
+  .hero-shot {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    margin-inline: auto;
+    filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.45));
+  }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+  .panel-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.7rem 0.9rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .panel-mark {
+    width: 15px; height: 15px; flex: none;
+    background-color: var(--muted);
+    -webkit-mask: url(https://afkpilot.com/logo.svg) center / contain no-repeat;
+    mask: url(https://afkpilot.com/logo.svg) center / contain no-repeat;
+  }
+  .panel-title {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .live {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 var(--green);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(78, 201, 176, 0.45); }
+    70% { box-shadow: 0 0 0 7px rgba(78, 201, 176, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(78, 201, 176, 0); }
+  }
+
+  .panel-body { padding: 1.25rem 1.1rem 1.1rem; display: flex; flex-direction: column; gap: 0.85rem; }
+  .msg { font-size: 0.95rem; line-height: 1.5; max-width: 85%; }
+  .msg-user {
+    align-self: flex-end;
+    background: var(--accent-soft);
+    border: 1px solid var(--border-soft);
+    color: var(--text);
+    padding: 0.55rem 0.8rem;
+    border-radius: 12px 12px 3px 12px;
+  }
+  .msg-agent { align-self: flex-start; color: var(--text); }
+  .msg-agent p { margin: 0; }
+  .msg-agent code {
+    font-size: 0.85em;
+    background: var(--code-bg);
+    border: 1px solid var(--border-soft);
+    padding: 0.05em 0.4em;
+    border-radius: 5px;
+  }
+  .agent-status {
+    margin-top: 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .agent-status .ok { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex: none; }
+
+  .panel-composer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border-top: 1px solid var(--border-soft);
+  }
+  .panel-composer .prompt { font-family: var(--font-mono); font-size: 0.85rem; color: var(--faint); }
+  .send-chip {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.22rem 0.55rem;
+  }
+
+  .code-ticket {
+    position: absolute;
+    left: clamp(0.5rem, 3vw, 2.3rem);
+    bottom: 0.7rem;
+    background: var(--ticket-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.7rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .code-ticket .lbl {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .code-ticket .code {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    letter-spacing: 0.22em;
+    color: var(--heading);
+  }
+
+  /* load reveal */
+  .reveal { opacity: 0; transform: translateY(10px); animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.12s; } .d3 { animation-delay: 0.19s; }
+  .d4 { animation-delay: 0.26s; } .d5 { animation-delay: 0.34s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  /* ---------------- features ---------------- */
+  .features { border-top: 1px solid var(--border-soft); padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .feature { padding: 0.2rem clamp(1rem, 3vw, 2.4rem); }
+  .feature:not(:first-child) { border-left: 1px solid var(--border-soft); }
+  .feature .kw {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .feature h3 { font-size: var(--step-1); margin: 0.7rem 0 0.5rem; letter-spacing: -0.01em; }
+  .feature p { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.55; }
+
+  /* ---------------- cloud band ----------------
+     The broader bet gets its own room right under the hero: a dedicated VM,
+     every harness, nothing to install. Reuses .feature cards so the rhythm
+     matches the grid below it. */
+  .features-head { margin-bottom: clamp(1.5rem, 4vw, 2.5rem); }
+  .features-head p:not(.eyebrow) { color: var(--muted); margin: 0.75rem 0 0; max-width: 62ch; }
+  .features-head h2 { font-size: var(--step-3); letter-spacing: -0.015em; margin: 0.7rem 0 0; max-width: 30ch; }
+
+  /* Grayed provider marks — the same Lobe Icons (MIT) paths the extension's
+     model picker uses, inlined so the page needs no extra fetch. */
+  .agent-marks { display: flex; flex-wrap: wrap; gap: 0.8rem 1.6rem; margin-top: 1.6rem; }
+  .agent-mark { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--faint); font-family: var(--font-mono); font-size: 0.95rem; letter-spacing: 0.02em; }
+  .agent-mark svg { width: 0.95rem; height: 0.95rem; flex: none; }
+
+  .cloudband { border-top: 1px solid var(--border-soft); padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  .cloudband-head h2 { font-size: var(--step-3); letter-spacing: -0.015em; margin: 0.7rem 0 0; max-width: 26ch; }
+  .cloudband-head p:not(.eyebrow) { color: var(--muted); margin: 0.75rem 0 0; max-width: 62ch; }
+  .cloudband-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: clamp(1.5rem, 4vw, 2.5rem); }
+  .cloudband-note { margin-top: 1.5rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--faint); }
+
+  .agent-mark-note { color: var(--faint); opacity: 0.8; }
+
+  /* ---------------- the extension ----------------
+     The agents as a ruled list, not cards: five rows of the same shape, so
+     the reader compares them down one column. The install side is the only
+     panel on the section, because it is the only thing on it to act on. */
+  .extension { border-top: 1px solid var(--border-soft); padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  .extension-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+  .agent-rows { margin: 0; border-top: 1px solid var(--border-soft); }
+  .agent-row {
+    display: grid;
+    grid-template-columns: 11.5rem 1fr;
+    gap: 0.35rem 1.5rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .agent-row dt { color: var(--heading); font-weight: 600; font-size: 0.98rem; }
+  .agent-row dt span { display: block; margin-top: 0.15rem; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 400; color: var(--faint); }
+  .agent-row dd { margin: 0; color: var(--muted); font-size: 0.93rem; line-height: 1.55; }
+  .extension-get {
+    padding: clamp(1.2rem, 3vw, 1.6rem);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .extension-get h3 { font-size: var(--step-1); letter-spacing: -0.01em; }
+  .extension-cta { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+  .extension-search { margin: 0.9rem 0 0; color: var(--muted); font-size: 0.88rem; line-height: 1.55; overflow-wrap: anywhere; }
+  .extension-search code {
+    font-size: 0.82em;
+    background: var(--code-bg);
+    border: 1px solid var(--border-soft);
+    padding: 0.05em 0.4em;
+    border-radius: 5px;
+  }
+  .extension-proof { list-style: none; margin: 1.2rem 0 0; padding: 1rem 0 0; border-top: 1px solid var(--border-soft); display: grid; gap: 0.4rem; }
+  .extension-proof li { color: var(--muted); font-size: 0.86rem; }
+  .extension-proof b { color: var(--heading); font-family: var(--font-mono); font-weight: 500; margin-right: 0.3rem; }
+  .extension-desktop { margin: 1.1rem 0 0; color: var(--muted); font-size: 0.88rem; line-height: 1.55; }
+
+  /* ---------------- get started: three steps ---------------- */
+  .steps-section { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  .steps-head h2 { font-size: var(--step-2); letter-spacing: -0.02em; margin: 0.5rem 0 0; max-width: 22ch; }
+  .steps-grid {
+    list-style: none;
+    margin: clamp(1.5rem, 3vw, 2.4rem) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+  }
+  .step-card {
+    padding: clamp(1.3rem, 2.5vw, 1.7rem);
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+  }
+  .step-num {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 50%;
+  }
+  .step-card h3 { font-size: var(--step-1); margin: 0.85rem 0 0.4rem; letter-spacing: -0.01em; }
+  .step-card p { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.55; }
+  .step-card b { color: var(--heading); font-weight: 600; }
+
+  /* ---------------- pricing ---------------- */
+  .plan-tag {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.08rem 0.5rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .pricing { border-top: 1px solid var(--border-soft); padding-block: clamp(2.75rem, 7vw, 5rem); }
+  .pricing-head { text-align: center; max-width: 40ch; margin-inline: auto; }
+  .pricing-head h2 { font-size: var(--step-3); letter-spacing: -0.015em; margin: 0.7rem 0 0; }
+  .pricing-head p:not(.eyebrow) { color: var(--muted); margin: 0.75rem 0 0; }
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    max-width: 780px;
+    margin: 2.75rem auto 0;
+  }
+  .plan {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .plan-max { border-color: var(--accent); background: linear-gradient(180deg, var(--accent-soft), transparent 55%), var(--surface); }
+  .plan-name { font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .plan-max .plan-name { color: var(--accent); }
+  .plan-price { display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.6rem; }
+  .plan-price .amt { font-size: var(--step-3); font-weight: 600; color: var(--heading); letter-spacing: -0.01em; }
+  .plan-price .per { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+  .plan-lead { margin: 0.9rem 0 0; color: var(--muted); font-size: 0.9rem; min-height: 1.2em; }
+  .plan ul { list-style: none; margin: 1.25rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+  .plan li { position: relative; padding-left: 1.55rem; font-size: 0.93rem; color: var(--text); }
+  .plan li::before {
+    content: "";
+    position: absolute; left: 0; top: 0.35em;
+    width: 0.85rem; height: 0.45rem;
+    border-left: 2px solid var(--green);
+    border-bottom: 2px solid var(--green);
+    transform: rotate(-45deg);
+  }
+  .plan .btn { margin-top: 1.6rem; width: 100%; }
+  .plan-fine { margin: 0.85rem 0 0; font-family: var(--font-mono); font-size: 0.72rem; color: var(--faint); text-align: center; }
+  .pricing-note { margin: 1.5rem auto 0; max-width: 780px; text-align: center; font-family: var(--font-mono); font-size: 0.72rem; color: var(--faint); }
+
+  /* ---------------- faq ----------------
+     Structure here is grouping, not sequence: these are five separate worries,
+     so the rail carries concern names in the page's mono label voice and the
+     questions sit in a hairline-divided column beside it. No numbers — nothing
+     about the order is information. Native <details>, so keyboard and
+     find-in-page work without a line of JS. */
+  .faq { border-top: 1px solid var(--border-soft); padding-block: clamp(2.75rem, 7vw, 5rem); }
+  .faq-head h2 { font-size: var(--step-3); letter-spacing: -0.015em; margin: 0.7rem 0 0; max-width: 24ch; }
+  .faq-groups { margin-top: clamp(1.75rem, 4vw, 2.75rem); }
+  .faq-group {
+    display: grid;
+    grid-template-columns: 10.5rem 1fr;
+    gap: clamp(1rem, 4vw, 3rem);
+    padding-block: 0.55rem;
+    border-top: 1px solid var(--border-soft);
+  }
+  .faq-group:last-child { border-bottom: 1px solid var(--border-soft); }
+  .faq-name {
+    margin: 1.15rem 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  /* Capped to a reading measure so the marker never drifts a screen away from
+     the question it opens — the rows are a text column, not a table. */
+  .faq-list { max-width: 50rem; }
+  .faq-item + .faq-item { border-top: 1px solid var(--border-soft); }
+  .faq-item > summary {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.05rem 0;
+    color: var(--heading);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item > summary::-webkit-details-marker { display: none; }
+  .faq-item > summary::after {
+    content: "+";
+    flex: none;
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    line-height: 1;
+    color: var(--faint);
+    transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s ease;
+  }
+  .faq-item > summary:hover::after { color: var(--muted); }
+  .faq-item[open] > summary::after { transform: rotate(45deg); color: var(--accent); }
+  .faq-body { padding-bottom: 1.4rem; animation: faq-open 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes faq-open { from { opacity: 0; transform: translateY(-5px); } }
+  .faq-body p { margin: 0; max-width: 62ch; color: var(--muted); font-size: 0.95rem; line-height: 1.65; }
+  .faq-body p + p { margin-top: 0.8rem; }
+  .faq-body b { color: var(--heading); font-weight: 600; }
+  .faq-body code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--code-bg);
+    border: 1px solid var(--border-soft);
+    padding: 0.05em 0.4em;
+    border-radius: 5px;
+  }
+
+  /* The signature: the capability line itself, drawn straight from the
+     extension's remote-policy table. The honest answer to "what do I lose on
+     the phone" is a boundary, so it's drawn as one. */
+  .cap-split { display: grid; grid-template-columns: 1fr 1fr; margin-top: 1.35rem; }
+  .cap { padding-right: clamp(1rem, 2.5vw, 2rem); }
+  .cap + .cap {
+    padding-right: 0;
+    padding-left: clamp(1rem, 2.5vw, 2rem);
+    border-left: 1px solid var(--border-soft);
+  }
+  .cap-head {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .cap ul { list-style: none; margin: 0.9rem 0 0; padding: 0; display: grid; gap: 0.55rem; }
+  .cap li { position: relative; padding-left: 1.5rem; font-size: 0.9rem; line-height: 1.5; }
+  .cap-yes li { color: var(--text); }
+  .cap-yes li::before {
+    content: "";
+    position: absolute; left: 0; top: 0.3em;
+    width: 0.8rem; height: 0.42rem;
+    border-left: 2px solid var(--green);
+    border-bottom: 2px solid var(--green);
+    transform: rotate(-45deg);
+  }
+  .cap-no li { color: var(--muted); }
+  .cap-no li::before {
+    content: "";
+    position: absolute; left: 0; top: 0.72em;
+    width: 0.8rem; height: 0;
+    border-top: 2px solid var(--faint);
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-copy { order: 1; }
+    .showcase { order: 2; padding-bottom: 4rem; max-width: 460px; margin-inline: auto; width: 100%; }
+  }
+  @media (max-width: 380px) {
+    .site-header { gap: 0.5rem; }
+    .site-header .wordmark { display: none; }
+    .header-actions .btn { white-space: nowrap; }
+  }
+  @media (max-width: 720px) {
+    .features-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .cloudband-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .extension-grid { grid-template-columns: 1fr; }
+    .agent-row { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .feature { padding-inline: 0; }
+    .feature:not(:first-child) { border-left: 0; border-top: 1px solid var(--border-soft); padding-top: 2rem; }
+    .plans { grid-template-columns: 1fr; }
+    .code-ticket { position: static; margin-top: 1rem; align-self: flex-start; }
+    .showcase { display: flex; flex-direction: column; padding-bottom: 0; }
+    /* The rail becomes a header above its questions; the capability boundary
+       turns from a vertical rule into a horizontal one. */
+    .faq-group { grid-template-columns: 1fr; gap: 0; padding-block: 0.35rem 0.75rem; }
+    .faq-name { margin-top: 1.35rem; }
+    .cap-split { grid-template-columns: 1fr; }
+    .cap { padding-right: 0; }
+    .cap + .cap {
+      padding-left: 0;
+      padding-top: 1.15rem;
+      margin-top: 1.15rem;
+      border-left: 0;
+      border-top: 1px solid var(--border-soft);
+    }
+  }
+</style>
+</head>
+<body>
+  <header class="site-header wrap">
+    <a class="brand" href="/">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="wordmark"><b>AFK</b> <span class="dim">Pilot</span></span>
+    </a>
+    <div class="header-actions">
+      <button class="icon-toggle" type="button" onclick="__toggleTheme()" aria-label="Toggle light and dark theme" title="Toggle theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.5M12 19v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2.5 12H5M19 12h2.5M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.2 6.2 0 0 0 10.5 10.5z"/></svg>
+      </button>
+      <a class="btn btn-primary" data-auth-cta href="/dashboard">Sign in</a>
+      <script src="/site-header.js"></script>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- ===================== marketing ===================== -->
+    <div id="hero">
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow reveal d1">VS Code extension · remote control · cloud</p>
+            <h1 class="reveal d2">Your coding agents, from any browser.</h1>
+            <p class="hero-sub reveal d3">AFK Pilot puts <b>Grok Build</b>, <b>Muse Code</b>, <b>Codex</b> and <b>Claude Code</b> in one place: the AFK Pilot extension for VS Code and Cursor (previously Grok Build for VS Code), Grok Build Desktop, or a cloud machine we run for you. Google's <b>Antigravity</b> joins them as an experimental fifth agent in the extension, off by default and on your own computer only. Pair once, then chat, approve and follow every run from your phone, tablet or the next room.</p>
+            <div class="hero-cta reveal d4">
+              <a class="btn btn-primary" href="/dashboard">Start free</a>
+              <a class="btn btn-secondary" href="#pricing-section">See pricing</a>
+            </div>
+            <p class="hero-note reveal d5">No card to start · runs in any modern browser</p>
+            <p class="hero-alt reveal d5">Just want the agents on one machine? <a href="/desktop">Grok Build Desktop</a> is free and needs no account.</p>
+            <div class="agent-marks reveal d5" aria-label="Works with Grok Build, Muse Code, Codex, Claude Code and Antigravity (experimental)">
+              <span class="agent-mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.27 15.29l7.978-5.897c.391-.29.95-.177 1.137.272.98 2.369.542 5.215-1.41 7.169-1.951 1.954-4.667 2.382-7.149 1.406l-2.711 1.257c3.889 2.661 8.611 2.003 11.562-.953 2.341-2.344 3.066-5.539 2.388-8.42l.006.007c-.983-4.232.242-5.924 2.75-9.383.06-.082.12-.164.179-.248l-3.301 3.305v-.01L9.267 15.292M7.623 16.723c-2.792-2.67-2.31-6.801.071-9.184 1.761-1.763 4.647-2.483 7.166-1.425l2.705-1.25a7.808 7.808 0 00-1.829-1A8.975 8.975 0 005.984 5.83c-2.533 2.536-3.33 6.436-1.962 9.764 1.022 2.487-.653 4.246-2.34 6.022-.599.63-1.199 1.259-1.682 1.925l7.62-6.815"></path></svg>Grok Build</span>
+              <span class="agent-mark"><svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M6.897 4c1.915 0 3.516.932 5.43 3.376l.282-.373c.19-.246.383-.484.58-.71l.313-.35C14.588 4.788 15.792 4 17.225 4c1.273 0 2.469.557 3.491 1.516l.218.213c1.73 1.765 2.917 4.71 3.053 8.026l.011.392.002.25c0 1.501-.28 2.759-.818 3.7l-.14.23-.108.153c-.301.42-.664.758-1.086 1.009l-.265.142-.087.04a3.493 3.493 0 01-.302.118 4.117 4.117 0 01-1.33.208c-.524 0-.996-.067-1.438-.215-.614-.204-1.163-.56-1.726-1.116l-.227-.235c-.753-.812-1.534-1.976-2.493-3.586l-1.43-2.41-.544-.895-1.766 3.13-.343.592C7.597 19.156 6.227 20 4.356 20c-1.21 0-2.205-.42-2.936-1.182l-.168-.184c-.484-.573-.837-1.311-1.043-2.189l-.067-.32a8.69 8.69 0 01-.136-1.288L0 14.468c.002-.745.06-1.49.174-2.23l.1-.573c.298-1.53.828-2.958 1.536-4.157l.209-.34c1.177-1.83 2.789-3.053 4.615-3.16L6.897 4zm-.033 2.615l-.201.01c-.83.083-1.606.673-2.252 1.577l-.138.199-.01.018c-.67 1.017-1.185 2.378-1.456 3.845l-.004.022a12.591 12.591 0 00-.207 2.254l.002.188c.004.18.017.36.04.54l.043.291c.092.503.257.908.486 1.208l.117.137c.303.323.698.492 1.17.492 1.1 0 1.796-.676 3.696-3.641l2.175-3.4.454-.701-.139-.198C9.11 7.3 8.084 6.616 6.864 6.616zm10.196-.552l-.176.007c-.635.048-1.223.359-1.82.933l-.196.198c-.439.462-.887 1.064-1.367 1.807l.266.398c.18.274.362.56.55.858l.293.475 1.396 2.335.695 1.114c.583.926 1.03 1.6 1.408 2.082l.213.262c.282.326.529.54.777.673l.102.05c.227.1.457.138.718.138.176.002.35-.023.518-.073.338-.104.61-.32.813-.637l.095-.163.077-.162c.194-.459.29-1.06.29-1.785l-.006-.449c-.08-2.871-.938-5.372-2.2-6.798l-.176-.189c-.67-.683-1.444-1.074-2.27-1.074z"></path></svg>Muse Code</span>
+              <span class="agent-mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg>Codex</span>
+              <span class="agent-mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z"></path></svg>Claude Code</span>
+              <span class="agent-mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.751 22.607c1.34 1.005 3.35.335 1.508-1.508C17.73 15.74 18.904 1 12.037 1 5.17 1 6.342 15.74.815 21.1c-2.01 2.009.167 2.511 1.507 1.506 5.192-3.517 4.857-9.714 9.715-9.714 4.857 0 4.522 6.197 9.714 9.715z"></path></svg>Antigravity <span class="agent-mark-note">(experimental)</span></span>
+            </div>
+          </div>
+
+          <div class="showcase">
+            <img class="hero-shot reveal d3" src="https://afkpilot.com/hero-phone.png" width="758" height="1500"
+                 alt="The AFK Pilot chat client running on a phone" />
+          </div>
+        </div>
+      </section>
+
+      <!-- The product that now carries the name. Counts are measured from the
+           store APIs and rounded DOWN, never summed: re-measure them when this
+           section changes (Marketplace gallery `statistics`, open-vsx.org/api,
+           and the GitHub repo's stargazers). Model names are what the pickers
+           show, as the extension's changelog states them. -->
+      <section class="extension" id="extension">
+        <div class="wrap">
+          <div class="features-head">
+            <p class="eyebrow">The extension</p>
+            <h2>Five coding agents, one sidebar.</h2>
+            <p>The AFK Pilot extension (previously Grok Build for VS Code) runs each vendor's own agent inside VS Code, Cursor and other VS Code-based editors (VS Code 1.106 or newer). One model picker, one Projects rail, and each conversation keeps the agent it started with. Your subscriptions, your usage. Free, with unlimited messages at the desk.</p>
+          </div>
+          <div class="extension-grid">
+            <dl class="agent-rows">
+              <div class="agent-row">
+                <dt>Grok Build <span>SpaceXAI, formerly xAI</span></dt>
+                <dd>Grok 4.7, with a 256K or 500K context window you choose per conversation.</dd>
+              </div>
+              <div class="agent-row">
+                <dt>Muse Code <span>Meta</span></dt>
+                <dd>Whatever Muse's CLI offers your account, for example Muse Wonder.</dd>
+              </div>
+              <div class="agent-row">
+                <dt>Codex <span>OpenAI</span></dt>
+                <dd>The models your Codex CLI offers your account.</dd>
+              </div>
+              <div class="agent-row">
+                <dt>Claude Code <span>Anthropic</span></dt>
+                <dd>Its default model says which it is, for example “Default (Opus 5.5)”. New conversations start in Claude's own Auto mode.</dd>
+              </div>
+              <div class="agent-row">
+                <dt>Antigravity <span>Google, experimental</span></dt>
+                <dd>Off by default (Settings → Advanced), on your own computer, not on Cloud machines. Signed in at the computer, not from your phone. With a Gemini API key it offers Gemini 4 Argon.</dd>
+              </div>
+            </dl>
+            <div class="extension-get">
+              <h3>Install it</h3>
+              <div class="extension-cta">
+                <a class="btn btn-primary" href="https://marketplace.visualstudio.com/items?itemName=PawelHuryn.grok-vscode-phuryn" target="_blank" rel="noopener">VS Code Marketplace</a>
+                <a class="btn btn-secondary" href="https://open-vsx.org/extension/PawelHuryn/grok-vscode-phuryn" target="_blank" rel="noopener">Open VSX</a>
+              </div>
+              <p class="extension-search">Or open Extensions in your editor and search <b>AFK Pilot</b>, or the ID <code>PawelHuryn.grok-vscode-phuryn</code>.</p>
+              <ul class="extension-proof">
+                <li><b>34,000+</b> installs on the VS Code Marketplace</li>
+                <li><b>140,000+</b> downloads on Open VSX</li>
+                <li><b>5.0</b> average from 12 Marketplace ratings</li>
+                <li><b>230+</b> stars on <a href="https://github.com/phuryn/grok-build-vscode" target="_blank" rel="noopener">GitHub</a></li>
+              </ul>
+              <p class="extension-desktop">Rather not use an editor? <a href="/desktop">Grok Build Desktop (Community)</a> runs Grok Build, Muse Code, Codex and Claude Code as a free app for Windows, macOS and Linux.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cloudband">
+        <div class="wrap">
+          <div class="cloudband-head">
+            <p class="eyebrow">Cloud · preview, included with Remote Max</p>
+            <h2>A dev machine in the cloud, ready in one click.</h2>
+            <p>Subscribers get a dedicated Linux machine with all four agents preinstalled. Sign in to <b>Grok</b>, <b>Codex</b>, <b>Claude Code</b> or <b>Muse Code</b> from the browser and start working — nothing to install, no computer left running at home. You bring your own agent subscriptions.</p>
+          </div>
+          <div class="cloudband-grid">
+            <div class="feature">
+              <span class="kw">dedicated</span>
+              <h3>Yours, not shared</h3>
+              <p>Your own VM — 8 CPU cores, 8 GB RAM, ~100 GB of storage. Machines are kept ready, so opening one takes seconds.</p>
+            </div>
+            <div class="feature">
+              <span class="kw">persistent</span>
+              <h3>What you install stays</h3>
+              <p>Not a throwaway container: your repos, packages and agent sign-ins are still there tomorrow.</p>
+            </div>
+            <div class="feature">
+              <span class="kw">efficient</span>
+              <h3>Sleeps when you do</h3>
+              <p>It naps between sessions and picks up where it left off — built to cost only when it works.</p>
+            </div>
+          </div>
+          <p class="cloudband-note">In preview, included with Remote Max at no extra cost. Later it graduates to its own plan, from $5/mo.</p>
+        </div>
+      </section>
+
+      <section class="features">
+        <div class="wrap">
+          <div class="features-head">
+            <p class="eyebrow">Remote control</p>
+            <h2>Bring your own machine, and your own subscriptions.</h2>
+            <p>The agents are the originals — the <b>Grok Build</b>, <b>Codex</b>, <b>Claude Code</b> and <b>Muse Code</b> command-line tools themselves, running on your machine under one interface. Nothing is re-implemented, and your usage counts against your own accounts.</p>
+          </div>
+          <div class="features-grid">
+          <div class="feature">
+            <span class="kw">pairing</span>
+            <h3>Link once, chat anywhere</h3>
+            <p>Devices pair with a one-time code shown by your host — an IDE such as VS Code, or Grok Build Desktop. Approve it in the browser and you are connected — no tunnels, no config.</p>
+          </div>
+          <div class="feature">
+            <span class="kw">privacy</span>
+            <h3>Private by design</h3>
+            <p>Messages are relayed in memory and never stored on our servers. Images only; videos never leave your machine.</p>
+          </div>
+          <div class="feature">
+            <span class="kw">ownership</span>
+            <h3>Your account is the key</h3>
+            <p>Every device binds to your account and stays revocable from the server, any time.</p>
+          </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="steps-section">
+        <div class="wrap">
+          <div class="steps-head">
+            <p class="eyebrow">Get started</p>
+            <h2>Up and running in three steps.</h2>
+          </div>
+          <ol class="steps-grid">
+            <li class="step-card">
+              <span class="step-num">1</span>
+              <h3>Get a machine</h3>
+              <p>The quick way: subscribers open their <b>Cloud machine</b> from the device list — nothing to install.<br>Your own computer instead? <b>The AFK Pilot extension</b> (previously Grok Build for VS Code) from the <a href="https://marketplace.visualstudio.com/items?itemName=PawelHuryn.grok-vscode-phuryn" target="_blank" rel="noopener">VS Code Marketplace</a> or <a href="https://open-vsx.org/extension/PawelHuryn/grok-vscode-phuryn" target="_blank" rel="noopener">Open VSX</a> (Cursor, Windsurf, …), or <b><a href="/desktop">Grok Build Desktop</a></b> for Windows, macOS and Linux.</p>
+            </li>
+            <li class="step-card">
+              <span class="step-num">2</span>
+              <h3>Link this device</h3>
+              <p>A Cloud machine is linked from the start. On your own machine, press the <b>Remote control</b> phone button in the chat's top bar and choose <b>Sign in and link this machine</b> — it opens the approval page for you. In VS Code, <b>AFK Pilot: Link this device</b> in the Command Palette does the same.</p>
+            </li>
+            <li class="step-card">
+              <span class="step-num">3</span>
+              <h3>Open on your phone</h3>
+              <p>Open <a href="/dashboard">your dashboard</a> on your phone, sign in, and <b>install it as an app</b> — your agent, one tap away.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="pricing" id="pricing-section">
+        <div class="wrap">
+          <div class="pricing-head">
+            <p class="eyebrow">Pricing</p>
+            <h2>Start free. Upgrade when you outgrow it.</h2>
+            <p>One plan to try it, one without the device and weekly caps.</p>
+          </div>
+          <div class="plans">
+            <div class="plan plan-free">
+              <span class="plan-name">Free</span>
+              <div class="plan-price"><span class="amt">$0</span><span class="per">/ forever</span></div>
+              <p class="plan-lead">For a single workspace.</p>
+              <ul>
+                <li>1 linked device</li>
+                <li>100 remote messages a week</li>
+                <li>The full chat UI</li>
+                <li>
+                  Unlimited local messages
+                </li>
+              </ul>
+              <a class="btn btn-secondary" href="/dashboard">Start free</a>
+            </div>
+            <div class="plan plan-max">
+              <span class="plan-name">Remote Max</span>
+              <div class="plan-price"><span class="amt">$5</span><span class="per">/ month</span></div>
+              <p class="plan-lead">Everything in Free, without the device or weekly caps.</p>
+              <ul>
+                <li>Unlimited linked devices</li>
+                <li>Unlimited remote messages</li>
+                <li>Dedicated cloud machine <span class="plan-tag">preview</span></li>
+                <li>Everything in Free</li>
+              </ul>
+              <a class="btn btn-primary" href="/dashboard#billing">Get Remote Max</a>
+              <p class="plan-fine">Monthly or annual billing · secure checkout after you sign in.</p>
+            </div>
+          </div>
+          <p class="pricing-note">Fair-use burst cap of 20 messages/minute applies to all plans. Cloud machines are in preview — included with Remote Max today, graduating to their own plan (from $5/mo) later.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================== faq ===================== -->
+    <section class="faq" id="faq">
+      <div class="wrap">
+        <div class="faq-head">
+          <p class="eyebrow">Questions</p>
+          <h2>The things people ask first.</h2>
+        </div>
+
+        <div class="faq-groups">
+          <div class="faq-group">
+            <h3 class="faq-name">Your cloud machine</h3>
+            <div class="faq-list">
+              <details class="faq-item" name="faq">
+                <summary>What exactly is a Cloud machine?</summary>
+                <div class="faq-body">
+                  <p>A dedicated Linux dev machine we run for you — <b>8 CPU cores, 8 GB RAM and roughly 100 GB of storage</b> — with the agents preinstalled. It is in your device list; opening it the first time is what creates it and links it to your account. Usually that takes seconds, because machines are kept ready; when one has to be built from scratch it can take up to 25 minutes, and the page says so while it works.</p>
+                  <p>It is in <b>preview</b>: included with Remote Max while we learn how people use it. Later it graduates to a plan of its own, from $5/mo.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>Does what I install stay?</summary>
+                <div class="faq-body">
+                  <p>Yes. It is a persistent machine, not a per-session container: cloned repos, installed packages, dotfiles and agent sign-ins are all still there next time. Between sessions it goes to sleep and picks up where it left off.</p>
+                  <p><b>Reset my Cloud</b> in the row's menu trades it for a brand-new one, and asks first. It is not the only way the disk goes: there are no automatic backups, and a machine can be rebuilt or reclaimed — when a preview ends, a subscription lapses, or maintenance needs it. Push anything you care about to your own repositories.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>Which agents can it run?</summary>
+                <div class="faq-body">
+                  <p>All four come preinstalled and all four connect right from the browser. <b>Muse Code</b> guides you through Meta's sign-in when you press Connect. <b>Grok</b> and <b>Codex</b> use a device code — Codex needs one toggle enabled in your OpenAI account first, and the connect flow walks you through it. <b>Claude Code</b> works differently: you open a link, approve there, and paste the code it gives you back into the page.</p>
+                  <p>Connectors (MCP apps) work there too — you sign one in from the browser, and the sign-in finishes on the machine without anything to copy across.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="faq-group">
+            <h3 class="faq-name">Using it</h3>
+            <div class="faq-list">
+              <details class="faq-item" name="faq">
+                <summary>Is it the same extension as Grok Build for VS Code?</summary>
+                <div class="faq-body">
+                  <p>Yes. Same extension, same ID (<code>PawelHuryn.grok-vscode-phuryn</code>), same settings and conversations. It was listed as “Grok Build for VS Code (Community)” until September 2026 and as “GUI for Grok Build &amp; Muse Code” until October 2026, and became <b>AFK Pilot</b> in version 4.15.0 on October 16, 2026. If your editor updates extensions automatically, which is its default, the new name arrives on its own.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>Which agents does it run?</summary>
+                <div class="faq-body">
+                  <p><b>Grok Build</b> (SpaceXAI, formerly xAI), <b>Muse Code</b> (Meta), <b>Codex</b> (OpenAI) and <b>Claude Code</b> (Anthropic), plus Google's <b>Antigravity</b> as an experimental fifth on your own computer. Each is the vendor's own agent, signed in with your own account. You see whatever models each one offers you — for example Grok 4.7, Muse Wonder or Opus 5.5, and Gemini 4 Argon when Antigravity is connected with a Gemini API key. Cloud machines run the first four. Each conversation keeps the agent it started with.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>Does it work with Antigravity?</summary>
+                <div class="faq-body">
+                  <p>As an agent, yes, experimentally. Turn on <b>Settings → Advanced → Experimental: Antigravity</b>, then connect it in <b>Settings → Providers</b> with your Google account or a Gemini API key; a key also offers Gemini 4 Argon. It is off by default and runs on your own computer only: not on Cloud machines, signed in at the computer rather than from your phone, and with no Plan mode or connectors yet. AFK Pilot starts its own Antigravity conversations, through Google's ACP server, next to your other agents.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>What can I do from the browser?</summary>
+                <div class="faq-body">
+                  <p>Nearly everything the sidebar does. The browser client <b>is</b> the host's chat UI — same layout, same controls — pointed at your machine instead of a local panel. What stays behind is whatever needs the host's local UI, whether that host is VS Code or Grok Build Desktop.</p>
+                  <div class="cap-split">
+                    <div class="cap cap-yes">
+                      <p class="cap-head">From any browser</p>
+                      <ul>
+                        <li>Send prompts, then stop, queue or fork a run, and steer one mid-turn with Grok or Codex</li>
+                        <li>Approve file writes, commands and plans</li>
+                        <li>Dictate with your voice where the host has voice set up, and have replies read aloud</li>
+                        <li>Switch model, mode and effort — and the repository each tab works in</li>
+                        <li>See every project and its conversations; resume, rename, delete or archive them</li>
+                        <li>Give a project its own colour and icon, and see it wherever that project is named</li>
+                        <li>Open, edit and save project files, syntax-highlighted</li>
+                        <li>Attach workspace files with @, add photos and documents</li>
+                        <li>Connect Grok, Codex, Claude Code or Muse Code to a machine</li>
+                        <li>Connect an app to an agent, and update an agent's CLI in place</li>
+                        <li>Follow an agent's subagents and workflows as they run, and copy what each one returns</li>
+                        <li>Update a Cloud machine to the latest release — it waits until the agent is idle</li>
+                        <li>Edit the config file each agent's CLI reads</li>
+                        <li>Add a project — name a new one, or clone it from a URL</li>
+                        <li>Rewind the conversation, or edit a message you already sent</li>
+                        <li>Sign in to GitHub, and clone a private repository onto a Cloud machine</li>
+                        <li>Pick up the conversation open in VS Code or Desktop — both stay live</li>
+                        <li>Export the conversation as Markdown</li>
+                      </ul>
+                    </div>
+                    <div class="cap cap-no">
+                      <p class="cap-head">Only at the desk</p>
+                      <ul>
+                        <li>Importing a folder that is already on the machine — that opens a file picker there</li>
+                        <li>Signing agents out of a local machine — a Cloud machine can be signed out remotely</li>
+                        <li>Linking a new local machine — that starts in the extension or Desktop app</li>
+                        <li>Muse Code's sandbox and workspace-trust settings — its approval mode switches from anywhere</li>
+                        <li>Turning on, installing and signing in Antigravity — experimental, and on your own machine only</li>
+                        <li>Dragging files onto the composer — use the attach button instead</li>
+                        <li>Video — images cross the wire, video never does</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>Does it work with Codex and Claude Code?</summary>
+                <div class="faq-body">
+                  <p>Yes — both, alongside Grok and Muse Code. Models from every connected agent appear in one picker, and each conversation keeps the agent it started with, so you can run them side by side: five on your own machine, counting the experimental Antigravity, and four on a Cloud machine.</p>
+                  <p><b>These are the original harnesses, not a re-implementation.</b> We run the vendors' own command-line agents — the <b>Grok Build CLI</b>, <b>OpenAI's Codex CLI</b>, <b>Anthropic's Claude Code CLI</b> and <b>Meta's Muse Code CLI</b> — on your machine. Grok, Codex and Claude Code connect over the open <a href="https://agentclientprotocol.com" target="_blank" rel="noopener">Agent Client Protocol</a>; Muse Code uses Meta's own protocol through an adapter. Each agent keeps its own models, tools and updates; what this app adds is one interface over all of them, and a browser you can reach it from. Available controls depend on the agent. You sign in with your own accounts and your usage counts against your own subscriptions.</p>
+                  <p><b>On a Cloud machine:</b> all four connect right from the browser.</p>
+                  <p><b>On your own machine:</b> Grok, Codex, Claude Code and Muse Code all connect in Settings → Providers (if the Codex CLI isn't installed, the app offers to install it) — and once connected, the browser drives any of the four. Google's <b>Antigravity</b> joins them there as an experimental fifth agent (Settings → Advanced), on your own machine only, not on Cloud machines.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>Do I need to leave my computer on?</summary>
+                <div class="faq-body">
+                  <p><b>Not if you use a Cloud machine</b> — that one runs in our cloud and sleeps on its own, so your laptop can stay shut.</p>
+                  <p>For an agent on your own machine, yes. It runs there, in either the AFK Pilot extension or Grok Build Desktop (Community), with your own model access — AFK Pilot is only the wire between it and your browser. Leave the host running and the workspace linked.</p>
+                  <p>In VS Code, you do not have to leave the AFK Pilot panel open, but you do have to <b>open it once after you start VS Code</b>: that is what dials the connection. In Desktop, open the app and link it from its AFK Pilot controls. After that, the local panel can be out of the way while the link stays up — and on Windows and Linux, closing the Desktop window leaves the app running in the tray, so the link survives that too.</p>
+                  <p>While a device is linked, the extension holds your operating system's own wake lock so the machine will not idle-sleep and drop the connection while you are away. Your screen still goes dark, and <code>grok.remote.keepAwake</code> turns the whole thing off. If the machine does go down, the device simply shows as offline and reconnects by itself when it comes back.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>Is my phone one of my linked devices?</summary>
+                <div class="faq-body">
+                  <p>No. A linked device is a <b>machine running a host</b> — an IDE such as VS Code, or Grok Build Desktop — and that is what the Free plan's one-device limit counts. Running <i>both</i> hosts on the same computer still counts as one device. Open the browser client on as many phones, tablets and laptops as you like; they all reach the same workspace, and two of them can watch the same run at once.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="faq-group">
+            <h3 class="faq-name">Your data</h3>
+            <div class="faq-list">
+              <details class="faq-item" name="faq">
+                <summary>Do you store my prompts or my code?</summary>
+                <div class="faq-body">
+                  <p>No. Prompts, replies, file contents and images pass through the relay in memory and are dropped. There is no chat history on our servers because there is no chat log on our servers — your sessions live on the machine running the agent, the same as they did before. On a <b>Cloud machine</b> that is the machine we host for you: the conversations and files are on its disk, and still not in our database.</p>
+                  <p>What we do keep is the minimum to run an account: your sign-in identity, a device name and key identifier, and, on the Free plan, a single number — how many messages you have sent this week. The <a href="/privacy">privacy policy</a> lists all of it.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>Is it end-to-end encrypted?</summary>
+                <div class="faq-body">
+                  <p>Both hops are encrypted: browser to relay, and relay to your machine, each over TLS. Nothing crosses the network in the clear.</p>
+                  <p>It is still not end-to-end, and we would rather say so than imply otherwise: the relay terminates both hops to route between them, so a message is briefly in plaintext in its memory as it passes through. Nothing is written down — prompts and code are never stored, on the relay or in its database.</p>
+                  <p>What the relay cannot do is act on your editor. It is policy-free by design: the gate deciding which messages may touch your machine lives in the extension, on your machine. Even a compromised relay cannot make your host open a file, run a picker, or change your settings.</p>
+                  <p>A <b>Cloud machine</b> is the exception worth stating plainly: there the host runs on hardware we operate, so the separation above is a policy we keep rather than a wall you own. Keep anything that needs that wall on your own computer.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="faq-group">
+            <h3 class="faq-name">Apps</h3>
+            <div class="faq-list">
+              <details class="faq-item" name="faq">
+                <summary>Is there an iOS or Android app?</summary>
+                <div class="faq-body">
+                  <p>Not yet. Install this site instead — it is built to work as one. On Android, Chrome or Edge, open <a href="/dashboard">your dashboard</a>, sign in and use the <b>Install app</b> button in the header; on an iPhone or iPad, tap <b>Share</b>, then <b>Add to Home Screen</b>.</p>
+                  <p>You get an icon on your home screen, a full-screen window with no browser chrome, and a session that stays signed in. It also updates itself, so a fix reaches your phone the moment we ship it, with no store review in between.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="faq-group">
+            <h3 class="faq-name">Plans</h3>
+            <div class="faq-list">
+              <details class="faq-item" name="faq">
+                <summary>Do I have to pay to use the extension or the desktop app?</summary>
+                <div class="faq-body">
+                  <p>No. Both hosts are free and their messages are never limited — the <b>AFK Pilot</b> extension in VS Code, Cursor or another editor it supports, and <b>Grok Build Desktop (Community)</b> on Windows, macOS and Linux. Stay at your keyboard and there is nothing to pay and nothing to count.</p>
+                  <p>What AFK Pilot's Free plan meters is <b>remote</b> messages: the ones you send from your phone or another browser to drive that same agent while you're away from the desk. That's 100 a week on 1 linked device — Remote Max removes the limit.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>What happens when I hit the free limit?</summary>
+                <div class="faq-body">
+                  <p>Sending from the browser pauses until your weekly window resets — Tuesdays at 17:00 Europe/Warsaw — and the usage meter shows the countdown once you pass 80%. Nothing is lost — the agent, your sessions and VS Code carry on exactly as normal at the desk. The one-device limit works the same way: link a second machine and you will be asked to upgrade rather than cut off.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>How does payment work, and can I get an invoice?</summary>
+                <div class="faq-body">
+                  <p>Checkout runs through Stripe. We never see or store your card details, and starting on Free never asks for a card at all.</p>
+                  <p>Every payment gets a receipt by email. If you need a proper VAT invoice, write to <a href="/cdn-cgi/l/email-protection#81e2eeeff5e0e2f5c1e0e7eaf1e8edeef5afe2eeec"><span class="__cf_email__" data-cfemail="26454948524745526647404d564f4a49520845494b">[email&#160;protected]</span></a> and we will issue one.</p>
+                </div>
+              </details>
+
+              <details class="faq-item" name="faq">
+                <summary>How do I cancel?</summary>
+                <div class="faq-body">
+                  <p>From your account page, any time. Access runs to the end of the period you have paid for and then drops back to Free — your linked devices and your sessions stay where they are. A <b>Cloud machine</b> stops being reachable when the plan that included it ends, and may be reclaimed after that, so move anything you want to keep off it first.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="faq-group">
+            <h3 class="faq-name">Help</h3>
+            <div class="faq-list">
+              <details class="faq-item" name="faq">
+                <summary>Something is broken. Where do I report it?</summary>
+                <div class="faq-body">
+                  <p><a href="https://github.com/phuryn/grok-build-vscode/issues/new?labels=bug" target="_blank" rel="noopener">Report a bug</a> or <a href="https://github.com/phuryn/grok-build-vscode/issues/new?labels=enhancement" target="_blank" rel="noopener">request a feature</a> on the extension's GitHub repo. Bugs and feature requests for both the extension and this remote client go there, in the open, where other people can find the answer too.</p>
+                  <p>For anything about your account, billing or privacy, email <a href="/cdn-cgi/l/email-protection#46252928322725320627202d362f2a29326825292b"><span class="__cf_email__" data-cfemail="84e7ebeaf0e5e7f0c4e5e2eff4ede8ebf0aae7ebe9">[email&#160;protected]</span></a>.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span class="copy">&copy; 2026 The Product Compass (HURYN Sp. z o.o.)</span>
+      <span class="maker app-hidden">Made by <a href="https://www.productcompass.pm" target="_blank" rel="noopener">Pawel Huryn</a> <a href="https://x.com/PawelHuryn" target="_blank" rel="noopener">X</a> <a href="https://www.linkedin.com/in/pawel-huryn" target="_blank" rel="noopener">LinkedIn</a> <a href="https://github.com/phuryn/grok-build-vscode" target="_blank" rel="noopener">GitHub</a></span>
+      <nav>
+        <a class="app-hidden" href="/desktop">Desktop app</a>
+        <a class="app-hidden" href="/blog">Blog</a>
+        <a class="app-hidden" href="#faq">FAQ</a>
+        <a href="https://github.com/phuryn/grok-build-vscode/issues" target="_blank" rel="noopener">Support</a>
+        <a href="https://staygreen.io/s/afk-pilot" target="_blank" rel="noopener">Status</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </nav>
+      <p class="fine">AFK Pilot and Grok Build Desktop (Community) are independent products, not affiliated with or endorsed by SpaceXAI (formerly xAI), Meta, OpenAI, Anthropic or Google. Grok and Grok Build are trademarks of xAI; Muse Code of Meta; Codex of OpenAI; Claude and Claude Code of Anthropic; Antigravity and Gemini of Google. These names are used only to describe what AFK Pilot works with.</p>
+    </div>
+  </footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

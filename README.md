@@ -13,7 +13,9 @@ server. For example, if Python 3 is installed:
 python3 -m http.server 8000
 ```
 
-Then visit <http://localhost:8000>. Stop the server with Ctrl+C.
+Then visit <http://localhost:8000> for the game or
+<http://localhost:8000/site/> for the standalone marketing site. Stop the
+server with Ctrl+C.
 
 ## Project structure
 
@@ -24,6 +26,8 @@ Then visit <http://localhost:8000>. Stop the server with Ctrl+C.
 - `js/questions.js` — the three scenarios, choices, outcomes, and feedback.
 - `js/ui.js` — accessible screen rendering and interactions.
 - `assets/` — replaceable UX placeholder artwork.
+- `site/index.html` — standalone marketing landing page for the game.
+- `site/agents-dungeon-website-prompt.md` — website design and content brief.
 
 ## Replacing placeholder artwork
 
@@ -42,6 +46,9 @@ are valid JPEG and PNG files; SVG originals are included for editable artwork.
 
 The project is static and can be deployed to any host that serves HTML, CSS,
 JavaScript, and image files. No server-side configuration is required.
+The marketing site can also be deployed independently by publishing the
+contents of `site/`; its **Play now** links currently point to the GitHub Pages
+game URL.
 
 ## Feedback
 
