@@ -6,6 +6,7 @@ account, or personal-information requirement.
 
 ## Run locally
 
+Open `play.html` in a browser to go straight to the game.
 Open `index.html` in a browser, or serve this folder with any static file
 server. For example, if Python 3 is installed:
 
@@ -19,19 +20,19 @@ server with Ctrl+C.
 
 ## Project structure
 
-- `index.html` — accessible single-page app shell and asset references.
+- `index.html` — standalone marketing landing page for the game.
+- `play.html` — accessible single-page app shell and asset references.
 - `css/styles.css` — shared mobile-first layout and components.
 - `css/theme-terminal.css` and `css/theme-pixel.css` — separate visual themes selected by the shared game state.
 - `js/game.js` — in-memory state, screen navigation, and d12 flow.
 - `js/questions.js` — the three scenarios, choices, outcomes, and feedback.
 - `js/ui.js` — accessible screen rendering and interactions.
 - `assets/` — replaceable UX placeholder artwork.
-- `site/index.html` — standalone marketing landing page for the game.
 - `site/agents-dungeon-website-prompt.md` — website design and content brief.
 
 ## Replacing placeholder artwork
 
-Replace an asset with your own file and update its reference in `index.html` or
+Replace an asset with your own file and update its reference in `play.html` or
 the stylesheet if the filename or format changes. Keep meaningful alternative
 text for informative images, and use empty alternative text for decorative
 images. The files named `*-placeholder.svg` are simple vector stand-ins, not
